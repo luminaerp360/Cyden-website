@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Product, ProductCategory } from '../types';
 import { getProducts, getCategories, getBrands, formatCurrency, syncProductsFromTheBar, getLastSyncTime } from '../services/products';
+import { fetchCategories } from '../services/productsService';
 import ProductCard from '../components/ProductCard';
 import AmbientBackground from '../components/AmbientBackground';
 import { useCart } from '../context/CartContext';
@@ -44,7 +45,17 @@ export default function CataloguePage({
 
   // Available brands & categories
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
-  const categories = useMemo(() => ['All', ...getCategories()], []);
+  const [categories, setCategories] = useState<string[]>(['All', ...getCategories()]);
+
+  // Load backend categories
+  useEffect(() => {
+    fetchCategories().then((cats) => {
+      if (cats && cats.length > 0) {
+        const uniqueNames = Array.from(new Set(cats.map((c) => c.name)));
+        setCategories(['All', ...uniqueNames]);
+      }
+    });
+  }, []);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);

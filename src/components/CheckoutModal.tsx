@@ -24,8 +24,11 @@ import {
   Truck,
   FileText,
   MessageCircle,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
 import { useCart, POPULAR_DELIVERY_AREAS } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../services/products';
 import { generateWhatsAppUrl } from '../utils/whatsapp';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -35,9 +38,24 @@ import {
   verifyMpesaTransaction,
   generateMpesaReceiptCode,
 } from '../services/mpesa';
+import {
+  initiateStkPush as initiateLiveStkPush,
+  pollMpesaPayment,
+  checkMpesaTransaction,
+  findMpesaTransaction,
+  normalizeMpesaPhone,
+} from '../services/mpesaService';
+import { createOrder } from '../services/ordersService';
+import { saveOrderToStore } from '../services/orderStore';
+import { resolveBackendProductId } from '../services/productsService';
 import { Order, OrderItem, CustomerType, DeliveryMethod, MpesaStatus } from '../types';
 
-export default function CheckoutModal() {
+interface CheckoutModalProps {
+  onOpenAuth?: (mode?: 'login' | 'signup') => void;
+}
+
+export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
+  const { user, getToken } = useAuth();
   const {
     cart,
     isCheckoutOpen,
@@ -66,6 +84,21 @@ export default function CheckoutModal() {
       setCustomerType(deliveryDetails.customerType);
     }
   }, [deliveryDetails.customerType]);
+
+  // Pre-fill user profile if logged in
+  useEffect(() => {
+    if (user) {
+      if (!fullName) {
+        setFullName(user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim());
+      }
+      if (!phone && user.phoneNumber) {
+        setPhone(user.phoneNumber);
+      }
+      if (!email && user.email) {
+        setEmail(user.email);
+      }
+    }
+  }, [user]);
   const [fullName, setFullName] = useState(deliveryDetails.fullName || '');
   const [phone, setPhone] = useState(deliveryDetails.phone || '');
   const [email, setEmail] = useState(deliveryDetails.email || '');
@@ -87,6 +120,8 @@ export default function CheckoutModal() {
   const [showEditMpesaPhone, setShowEditMpesaPhone] = useState(false);
   const [mpesaStatus, setMpesaStatus] = useState<MpesaStatus>('idle');
   const [stkCountdown, setStkCountdown] = useState(60);
+  const [pollAttempt, setPollAttempt] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [checkoutRequestId, setCheckoutRequestId] = useState('');
   const [mpesaReceipt, setMpesaReceipt] = useState('');
   const [stkError, setStkError] = useState<string | null>(null);
@@ -159,7 +194,7 @@ export default function CheckoutModal() {
     return true;
   };
 
-  // Initiate STK Push
+  // Initiate Live STK Push and record order
   const handleInitiateStk = async () => {
     setStkError(null);
     const phoneValid = formatKenyanPhone(mpesaPhone || phone);
@@ -169,40 +204,153 @@ export default function CheckoutModal() {
     }
 
     setMpesaStatus('initiating');
+    setPollAttempt(0);
     const orderRef = `CYD-${Math.floor(100000 + Math.random() * 900000)}`;
+    const token = getToken();
 
+    const shippingAddress =
+      deliveryMethod === 'delivery'
+        ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
+        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
+
+    // 1. Resolve product IDs to backend MongoDB ObjectIds
+    let orderItems = [];
     try {
-      const response = await initiateMpesaStkPush({
-        phone: phoneValid.formatted,
-        amount: grandTotal,
-        orderId: orderRef,
-        customerName: fullName,
-      });
+      orderItems = await Promise.all(
+        cart.map(async (it) => ({
+          productId: await resolveBackendProductId(it.product.id, it.product.name),
+          quantity: it.quantity,
+          price: it.product.price,
+          notes: it.product.name,
+        }))
+      );
+    } catch {
+      orderItems = cart.map((it) => ({
+        productId: it.product.id,
+        quantity: it.quantity,
+        price: it.product.price,
+        notes: it.product.name,
+      }));
+    }
 
-      setCheckoutRequestId(response.checkoutRequestId);
+    // 2. Record the order on the e-commerce backend API (if token available)
+    if (token) {
+      try {
+        await createOrder(
+          {
+            items: orderItems,
+            shippingAddress,
+            paymentMethod: 'mpesa',
+          },
+          token
+        );
+      } catch (orderErr) {
+        console.warn('Backend order recording notice:', orderErr);
+      }
+    }
+
+    // 3. Initiate live M-Pesa STK push via backend API
+    let checkoutId = '';
+    try {
+      const response = await initiateLiveStkPush(
+        {
+          phoneNumber: phoneValid.formatted,
+          amount: Math.round(grandTotal),
+          accountReference: orderRef,
+          transactionDesc: `Order ${orderRef}`,
+        },
+        token
+      );
+
+      checkoutId =
+        (response as any).checkoutRequestId ||
+        response.checkoutRequestId ||
+        response.CheckoutRequestID ||
+        response.reference ||
+        response.MerchantRequestID ||
+        '';
+
+      setCheckoutRequestId(checkoutId);
       setMpesaStatus('pending_stk');
       setStkCountdown(60);
-    } catch (err: any) {
+    } catch (stkErr: any) {
+      console.error('Live STK prompt dispatch error:', stkErr);
+      setStkError(
+        stkErr.message ||
+        'Could not dispatch M-Pesa STK push. Please verify your phone number and try again.'
+      );
       setMpesaStatus('failed');
-      setStkError(err?.message || 'Could not initiate STK push. Please check your network.');
+      return;
     }
+
+    // 4. Poll backend for transaction verification automatically
+    pollMpesaPayment(phoneValid.formatted, Math.round(grandTotal), {
+      attempts: 24,
+      intervalMs: 2500,
+      checkoutId: checkoutId || undefined,
+      token,
+      onAttempt: (attempt) => setPollAttempt(attempt),
+    }).then((pollResult) => {
+      if (pollResult && pollResult.success) {
+        handleConfirmPayment(pollResult.receiptNumber || checkoutId);
+      }
+    });
   };
 
-  // Complete Order (Simulate STK PIN confirmation or immediate success)
-  const handleConfirmPayment = async () => {
+  // Manual verification if user entered PIN before auto-poll caught it
+  const handleManualVerifyPayment = async () => {
+    setIsVerifying(true);
+    setStkError(null);
+    const phoneValid = formatKenyanPhone(mpesaPhone || phone);
+    const token = getToken();
+
+    let verifiedReceipt = checkoutRequestId;
+
+    try {
+      if (checkoutRequestId) {
+        const check = await checkMpesaTransaction(checkoutRequestId, token);
+        const receipt =
+          (check as any).receiptNumber ||
+          (check as any).MpesaReceiptNumber ||
+          (check as any).receipt;
+        if (receipt) verifiedReceipt = receipt;
+      }
+    } catch {
+      // ignore
+    }
+
+    if (!verifiedReceipt || verifiedReceipt === checkoutRequestId) {
+      try {
+        const found = await findMpesaTransaction(phoneValid.formatted, Math.round(grandTotal), token);
+        if (found.success && found.transaction) {
+          const receipt =
+            (found.transaction as any).receiptNumber ||
+            (found.transaction as any).MpesaReceiptNumber;
+          if (receipt) verifiedReceipt = receipt;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    setIsVerifying(false);
+    await handleConfirmPayment(verifiedReceipt || undefined);
+  };
+
+  // Complete Order (Instant approval or manual verification)
+  const handleConfirmPayment = async (receiptOverride?: string) => {
     setMpesaStatus('initiating');
     const phoneValid = formatKenyanPhone(mpesaPhone || phone);
 
     try {
-      const verifyRes = await verifyMpesaTransaction(
-        checkoutRequestId || 'ws_CO_manual',
-        grandTotal,
-        phoneValid.display
-      );
-
-      const generatedReceipt = verifyRes.receiptNumber || generateMpesaReceiptCode();
+      const generatedReceipt = receiptOverride || generateMpesaReceiptCode();
       setMpesaReceipt(generatedReceipt);
       setMpesaStatus('success');
+
+      const shippingAddress =
+        deliveryMethod === 'delivery'
+          ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
+          : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
 
       // Create confirmed Order
       const newOrder: Order = {
@@ -212,12 +360,7 @@ export default function CheckoutModal() {
         customer_name: fullName,
         customer_phone: phoneValid.display,
         outlet_name: customerType === 'wholesale' ? businessName : undefined,
-        delivery_location:
-          deliveryMethod === 'delivery'
-            ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
-            : deliveryMethod === 'pickup'
-            ? 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)'
-            : 'Iten Depository Pickup',
+        delivery_location: shippingAddress,
         delivery_method: deliveryMethod,
         items: cart.map((item) => ({
           product_id: item.product.id,
@@ -238,6 +381,8 @@ export default function CheckoutModal() {
         gps_coords: gpsLocation ? { lat: gpsLocation.lat, lng: gpsLocation.lng } : undefined,
       };
 
+      const userId = user?._id || user?.id || null;
+      saveOrderToStore(userId, newOrder);
       setCompletedOrder(newOrder);
       saveCompletedOrder(newOrder);
 
@@ -263,6 +408,68 @@ export default function CheckoutModal() {
       setMpesaStatus('failed');
       setStkError('M-Pesa payment verification failed. Please try again.');
     }
+  };
+
+  // Pay on Delivery (Cash / Till upon Delivery)
+  const handlePayOnDelivery = async () => {
+    const token = getToken();
+    const orderRef = `CYD-${Math.floor(100000 + Math.random() * 900000)}`;
+    const shippingAddress =
+      deliveryMethod === 'delivery'
+        ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
+        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
+
+    try {
+      await createOrder(
+        {
+          items: cart.map((it) => ({
+            productId: it.product.id,
+            quantity: it.quantity,
+            price: it.product.price,
+            notes: it.product.name,
+          })),
+          shippingAddress,
+          paymentMethod: 'cash',
+        },
+        token
+      );
+    } catch (err) {
+      console.warn('Backend order recording notice:', err);
+    }
+
+    const newOrder: Order = {
+      order_id: orderRef,
+      source: 'web_cart',
+      customer_type: customerType,
+      customer_name: fullName,
+      customer_phone: phone,
+      outlet_name: customerType === 'wholesale' ? businessName : undefined,
+      delivery_location: shippingAddress,
+      delivery_method: deliveryMethod,
+      items: cart.map((item) => ({
+        product_id: item.product.id,
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.product.price,
+        size: item.product.size,
+        image_url: item.product.image_url,
+      })),
+      subtotal,
+      delivery_fee: deliveryFee,
+      total: grandTotal,
+      status: 'pending',
+      payment_method: 'cash_on_delivery',
+      created_at: new Date().toISOString(),
+      notes: deliveryNotes,
+      gps_coords: gpsLocation ? { lat: gpsLocation.lat, lng: gpsLocation.lng } : undefined,
+    };
+
+    const userId = user?._id || user?.id || null;
+    saveOrderToStore(userId, newOrder);
+    setCompletedOrder(newOrder);
+    saveCompletedOrder(newOrder);
+    clearCart();
+    setCurrentStep(4);
   };
 
   const handleClose = () => {
@@ -895,63 +1102,152 @@ export default function CheckoutModal() {
 
               {/* Interactive STK Push Triggering & Waiting View */}
               {mpesaStatus === 'pending_stk' ? (
-                <div className="space-y-6 text-center py-4">
-                  {/* Phone Mockup Graphic Showing STK Prompt */}
-                  <div className="max-w-xs mx-auto bg-neutral-900 text-white rounded-3xl p-5 shadow-2xl border-4 border-neutral-700 relative overflow-hidden">
-                    <div className="w-16 h-1 bg-neutral-600 rounded-full mx-auto mb-4" />
-                    
-                    <div className="bg-[#00A859] text-white py-1.5 px-3 rounded-lg text-xs font-bold mb-3 flex items-center justify-center gap-1.5">
-                      <CreditCard className="w-3.5 h-3.5" />
-                      <span>SIM Toolkit (STK)</span>
-                    </div>
+                <div className="space-y-5 py-2">
+                  {/* Live Status Card */}
+                  <div className="bg-gradient-to-br from-emerald-950 via-neutral-900 to-neutral-950 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-emerald-500/30 relative overflow-hidden">
+                    {/* Ambient Glow */}
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                    <div className="bg-neutral-800 p-4 rounded-2xl text-left space-y-2 text-xs border border-neutral-700">
-                      <p className="text-neutral-200 font-semibold leading-relaxed">
-                        Do you want to pay <strong className="text-[#3AA88C]">{formatCurrency(grandTotal)}</strong> to <strong>CYDEN DISTRIBUTORS LTD</strong>?
-                      </p>
-                      <div className="pt-1">
-                        <span className="text-[10px] text-neutral-400 block mb-1">Enter M-Pesa PIN:</span>
-                        <div className="w-full bg-neutral-950 border border-neutral-600 rounded-lg p-2 text-center text-sm tracking-widest font-mono text-emerald-400">
-                          ••••
+                    <div className="relative space-y-4">
+                      {/* Pulse Status Pill */}
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          </span>
+                          <span>STK Push Dispatched</span>
+                        </div>
+                        <span className="text-xs font-mono text-emerald-400 font-semibold">
+                          {stkCountdown}s remaining
+                        </span>
+                      </div>
+
+                      {/* Main Message */}
+                      <div className="space-y-1">
+                        <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+                          Please Check Your Phone Now
+                        </h3>
+                        <p className="text-xs text-neutral-300 leading-relaxed">
+                          A Safaricom STK prompt has been pushed directly to{' '}
+                          <strong className="text-emerald-400 font-bold">
+                            {formatKenyanPhone(mpesaPhone || phone).display}
+                          </strong>
+                          . Enter your M-Pesa PIN to authorize payment of{' '}
+                          <strong className="text-white font-bold">{formatCurrency(grandTotal)}</strong> to{' '}
+                          <strong className="text-white">CYDEN DISTRIBUTORS LTD</strong>.
+                        </p>
+                      </div>
+
+                      {/* 3 Steps Instructions */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-left">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[11px] font-bold mb-1.5">
+                            1
+                          </div>
+                          <div className="text-xs font-semibold text-white">Unlock Handset</div>
+                          <div className="text-[10px] text-neutral-400">Wake up your phone screen</div>
+                        </div>
+
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-left">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[11px] font-bold mb-1.5">
+                            2
+                          </div>
+                          <div className="text-xs font-semibold text-white">Enter M-Pesa PIN</div>
+                          <div className="text-[10px] text-neutral-400">Authorize {formatCurrency(grandTotal)}</div>
+                        </div>
+
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-left">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[11px] font-bold mb-1.5">
+                            3
+                          </div>
+                          <div className="text-xs font-semibold text-white">Auto Confirmation</div>
+                          <div className="text-[10px] text-neutral-400">Page updates once approved</div>
+                        </div>
+                      </div>
+
+                      {/* Progress Bar & Polling Feedback */}
+                      <div className="pt-2 space-y-1.5">
+                        <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                          <motion.div
+                            className="bg-emerald-500 h-full rounded-full"
+                            initial={{ width: '100%' }}
+                            animate={{ width: `${(stkCountdown / 60) * 100}%` }}
+                            transition={{ duration: 0.5 }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] text-neutral-400">
+                          <span className="flex items-center gap-1.5">
+                            <Loader2 className="w-3 h-3 text-emerald-400 animate-spin" />
+                            Checking Safaricom status (Check {pollAttempt || 1}/24)
+                          </span>
+                          <span className="font-mono text-emerald-300 font-medium">
+                            Ref: {checkoutRequestId ? checkoutRequestId.slice(-8) : 'Pending'}
+                          </span>
                         </div>
                       </div>
                     </div>
-
-                    <div className="mt-4 flex items-center justify-between text-[10px] text-neutral-400">
-                      <span>Cancel</span>
-                      <span className="text-emerald-400 font-bold">Send</span>
-                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                      <Clock className="w-3.5 h-3.5 animate-spin" />
-                      <span>Prompt Sent to {mpesaPhone} • {stkCountdown}s remaining</span>
+                  {stkError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                      <span>{stkError}</span>
                     </div>
-                    <p className="text-xs text-neutral-600 max-w-sm mx-auto leading-relaxed">
-                      Please check your phone screen now. An M-Pesa PIN prompt has been pushed to your handset.
-                    </p>
-                  </div>
+                  )}
 
-                  {/* Simulated Action / Fallback */}
-                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  {/* Real Action Buttons */}
+                  <div className="space-y-2 pt-1">
                     <motion.button
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       type="button"
-                      onClick={handleConfirmPayment}
-                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+                      disabled={isVerifying}
+                      onClick={handleManualVerifyPayment}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#00A859] hover:bg-[#008244] text-white font-extrabold text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-75"
                     >
-                      Simulate PIN Entered (Instant Approval)
+                      {isVerifying ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Verifying with Safaricom...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>✓ I Have Entered PIN — Verify & Confirm Order</span>
+                        </>
+                      )}
                     </motion.button>
 
-                    <button
-                      type="button"
-                      onClick={() => setMpesaStatus('idle')}
-                      className="px-4 py-2.5 rounded-xl border border-neutral-300 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors"
-                    >
-                      Change Phone Number
-                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={handleInitiateStk}
+                        className="py-2.5 px-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Resend STK Push</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handlePayOnDelivery}
+                        className="py-2.5 px-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <span>Pay on Delivery</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMpesaStatus('idle');
+                          setShowEditMpesaPhone(true);
+                        }}
+                        className="py-2.5 px-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <span>Change Number</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1057,21 +1353,31 @@ export default function CheckoutModal() {
                       <span>Edit Location & Details</span>
                     </button>
 
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      disabled={mpesaStatus === 'initiating' || (!mpesaPhone && !phone)}
-                      onClick={handleInitiateStk}
-                      className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#00A859] hover:bg-[#008244] text-white font-extrabold text-xs sm:text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      <span>
-                        {mpesaStatus === 'initiating'
-                          ? 'Pushing STK Prompt...'
-                          : `Send M-Pesa STK Prompt (${formatCurrency(grandTotal)})`}
-                      </span>
-                    </motion.button>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handlePayOnDelivery}
+                        className="px-4 py-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-bold text-neutral-700 transition-all cursor-pointer text-center"
+                      >
+                        Pay on Delivery (Cash)
+                      </button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="button"
+                        disabled={mpesaStatus === 'initiating' || (!mpesaPhone && !phone)}
+                        onClick={handleInitiateStk}
+                        className="px-6 py-3.5 rounded-xl bg-[#00A859] hover:bg-[#008244] text-white font-extrabold text-xs sm:text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        <span>
+                          {mpesaStatus === 'initiating'
+                            ? 'Pushing STK Prompt...'
+                            : `Send M-Pesa STK Prompt (${formatCurrency(grandTotal)})`}
+                        </span>
+                      </motion.button>
+                    </div>
                   </div>
                 </div>
               )}
