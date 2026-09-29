@@ -21,9 +21,17 @@ import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { Product } from './types';
 import { CartProvider, useCart } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
+import AuthModal from './components/AuthModal';
+import MyOrdersModal from './components/MyOrdersModal';
 
 function CydenDistributorsApp() {
   const { openCheckout, addToCart } = useCart();
+
+  // Auth & Orders Modal States
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [isMyOrdersOpen, setIsMyOrdersOpen] = useState(false);
 
   // Age Verification State
   const [isAgeVerified, setIsAgeVerified] = useState<boolean>(false);
@@ -212,6 +220,11 @@ function CydenDistributorsApp() {
         currentRoute={currentRoute}
         onNavigate={navigateTo}
         onOpenOrderModal={() => handleOpenOrderModal()}
+        onOpenAuth={(mode) => {
+          setAuthMode(mode || 'login');
+          setIsAuthOpen(true);
+        }}
+        onOpenMyOrders={() => setIsMyOrdersOpen(true)}
       />
 
       {/* 3. Main Page Body */}
@@ -240,10 +253,29 @@ function CydenDistributorsApp() {
       <CartDrawer onNavigateToCatalogue={() => navigateTo('/catalogue')} />
 
       {/* 6. Single Unified Cyden Distributors Direct Checkout Modal */}
-      <CheckoutModal />
+      <CheckoutModal
+        onOpenAuth={(mode) => {
+          setAuthMode(mode || 'login');
+          setIsAuthOpen(true);
+        }}
+      />
 
       {/* 6b. Interactive WhatsApp Order & Logistics Modal (B2B/Personal, Pinned GPS, Payment Msg) */}
       <WhatsAppOrderModal />
+
+      {/* 6c. User Authentication Modal (Login / Signup) */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        initialMode={authMode}
+      />
+
+      {/* 6d. Customer Orders & History Modal */}
+      <MyOrdersModal
+        isOpen={isMyOrdersOpen}
+        onClose={() => setIsMyOrdersOpen(false)}
+        onOpenCatalogue={() => navigateTo('/catalogue')}
+      />
 
       {/* 7. Interactive Toast Notification when items added */}
       <CartToast />
@@ -256,8 +288,10 @@ function CydenDistributorsApp() {
 
 export default function App() {
   return (
-    <CartProvider>
-      <CydenDistributorsApp />
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <CydenDistributorsApp />
+      </CartProvider>
+    </AuthProvider>
   );
 }
