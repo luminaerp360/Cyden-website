@@ -22,7 +22,7 @@ export const COMPANY_INFO = {
     primaryPhone: '+254 722 400 409',
     primaryPhoneRaw: '+254722400409',
     secondaryPhone: '+254 754 722 746',
-    email: 'info@cydendistributors.com',
+    email: 'info@cydendistributors.co.ke',
     address: 'Rupa Godowns, P.O Box 1629-30100, Eldoret, Kenya',
     town: 'Eldoret',
     country: 'Kenya',
@@ -51,7 +51,7 @@ export const BRANCHES: Branch[] = [
     county: 'Uasin Gishu County',
     phone: '+254722400409',
     phoneDisplay: '0722 400 409',
-    operatingHours: 'Mon – Sat: 7:30 AM – 8:00 PM | Sundays: 8:00 AM – 8:00 PM (Open 7 Days)',
+    operatingHours: 'Open Everyday: 7:30 AM – 8:30 PM',
     description: 'Central distribution headquarters and heavy logistics warehouse housing comprehensive EABL portfolio inventory with dedicated cold chain bays and delivery fleet staging.',
     coordinates: { lat: 0.515, lng: 35.288333 },
     coordinatesDisplay: '0°30\'54"N, 35°17\'18"E (0.5150° N, 35.2883° E)',
@@ -72,7 +72,7 @@ export const BRANCHES: Branch[] = [
     county: 'Elgeyo Marakwet County',
     phone: '+254754722746',
     phoneDisplay: '0754 722 746',
-    operatingHours: 'Mon – Sat: 8:00 AM – 8:00 PM | Sundays: 8:30 AM – 8:00 PM (Open 7 Days)',
+    operatingHours: 'Open Everyday: 8:00 AM – 8:30 PM',
     description: 'Highland distribution sub-depot serving retail accounts, hotels, and tourist lounges across Iten township and the Kerio Valley escarpment rim with rapid weekly replenishment.',
     coordinates: { lat: 0.6732, lng: 35.5085 },
     coordinatesDisplay: '0°40\'23"N, 35°30\'30"E (0.6732° N, 35.5085° E)',
@@ -147,14 +147,14 @@ export const MILESTONES: Milestone[] = [
   },
   {
     year: '2026',
-    title: 'Financial Triumph (FY 2025/2026)',
-    description: 'Successfully hit and achieved a monumental Ksh 3.0 Billion gross revenue milestone, anchored by the successful transition to sustainable logistics and optimized green fleet frameworks initiated early in the year.',
+    title: 'Record Commercial Growth (FY 2025/2026)',
+    description: 'Achieved a historic record turnover and premier volume milestone across the regional distribution network, anchored by the transition to sustainable logistics and optimized green fleet frameworks.',
     highlight: true,
-    badgeText: 'Ksh 3.0B Milestone',
+    badgeText: 'Record Revenue Milestone',
     details: [
       {
         label: 'Achievement',
-        value: 'Successfully hit and achieved a monumental Ksh 3.0 Billion gross revenue milestone.'
+        value: 'Successfully achieved a historic record turnover milestone, solidifying regional market leadership.'
       },
       {
         label: 'Operational Backbone',
@@ -165,13 +165,13 @@ export const MILESTONES: Milestone[] = [
   {
     year: '2027',
     title: 'Digital Acceleration & Next-Level Scaling (FY 2026/2027)',
-    description: 'Aggressive commercial drive to capture Ksh 4.5 Billion gross revenue by scaling online visibility, integrating advanced B2B marketplace options, and driving digital client acquisition channels.',
+    description: 'Aggressive commercial drive to expand regional market reach and trade velocity by scaling online visibility, integrating advanced B2B marketplace options, and driving digital client acquisition channels.',
     highlight: true,
-    badgeText: 'Ksh 4.5B Target',
+    badgeText: 'Market Expansion Target',
     details: [
       {
         label: 'Target',
-        value: 'Aggressive commercial drive to capture Ksh 4.5 Billion gross revenue.'
+        value: 'Aggressive commercial drive to maximize market footprint and accelerate high-volume distribution.'
       },
       {
         label: 'Strategy',
@@ -195,6 +195,29 @@ export const BRANDS = [
 ];
 
 export const DISTRIBUTION_ROUTES: DistributionRoute[] = [
+  {
+    id: 'route-kso',
+    route: 'Key Strategic Outlet (KSO)',
+    phoneNumber: '0740 631 373',
+    phoneRaw: '+254740631373',
+    tillNumber: '4225308',
+    site: 'Dedicated delivery dispatch, fleet logistics coordination, and key account desk for Key Strategic Outlets (KSO)',
+    category: 'support',
+    categoryLabel: 'Support & KSO',
+    waypoints: ['Key Accounts', 'Priority Dispatch', 'Order Fulfillment'],
+    vehicleType: 'Dedicated KSO Fleet',
+  },
+  {
+    id: 'route-su-support',
+    route: 'SU (Support Unit)',
+    phoneNumber: '0740 631 345',
+    phoneRaw: '+254740631345',
+    site: 'Central customer care, billing inquiries, and account escalation support',
+    category: 'support',
+    categoryLabel: 'Customer Support',
+    waypoints: ['Account Onboarding', 'Credit Support', 'Customer Care Desk'],
+    vehicleType: 'Central Hotline Desk',
+  },
   {
     id: 'route-town',
     route: 'Town',
@@ -280,6 +303,18 @@ export const DISTRIBUTION_ROUTES: DistributionRoute[] = [
     vehicleType: 'Heavy Regional Carrier',
   },
   {
+    id: 'route-iten-route',
+    route: 'Iten Route',
+    phoneNumber: '0740 631 358',
+    phoneRaw: '+254740631358',
+    tillNumber: '4312064',
+    site: 'Serves Iten town and environs to Kapsowar, Kapkoi, Sergoit, and Biretwo',
+    category: 'core_route',
+    categoryLabel: 'Regional Corridor',
+    waypoints: ['Iten Town', 'Kapsowar', 'Kapkoi', 'Sergoit', 'Biretwo'],
+    vehicleType: 'Highland Logistics Fleet',
+  },
+  {
     id: 'route-rupa-counter',
     route: 'Rupa Counter',
     phoneNumber: '0740 631 285',
@@ -302,40 +337,5 @@ export const DISTRIBUTION_ROUTES: DistributionRoute[] = [
     categoryLabel: 'Depot Counter',
     waypoints: ['Sitet Building', 'Iten Town Centre', 'Escarpment Viewpoint'],
     vehicleType: 'Sub-Store Walk-In Counter',
-  },
-  {
-    id: 'route-su-support',
-    route: 'SU (Support Unit)',
-    phoneNumber: '0740 631 345',
-    phoneRaw: '+254740631345',
-    site: 'Central customer care, billing inquiries, and account escalation support',
-    category: 'support',
-    categoryLabel: 'Customer Support',
-    waypoints: ['Account Onboarding', 'Credit Support', 'Customer Care Desk'],
-    vehicleType: 'Central Hotline Desk',
-  },
-  {
-    id: 'route-iten-route',
-    route: 'Iten Route',
-    phoneNumber: '0740 631 358',
-    phoneRaw: '+254740631358',
-    tillNumber: '4312064',
-    site: 'Serves Iten town and environs to Kapsowar, Kapkoi, Sergoit, and Biretwo',
-    category: 'core_route',
-    categoryLabel: 'Regional Corridor',
-    waypoints: ['Iten Town', 'Kapsowar', 'Kapkoi', 'Sergoit', 'Biretwo'],
-    vehicleType: 'Highland Logistics Fleet',
-  },
-  {
-    id: 'route-back-office',
-    route: 'Back Office',
-    phoneNumber: '0740 631 373',
-    phoneRaw: '+254740631373',
-    tillNumber: '4225308',
-    site: 'Central delivery dispatch, fleet logistics coordination, and administrative desk',
-    category: 'support',
-    categoryLabel: 'Back Office Desk',
-    waypoints: ['Fleet Tracking', 'Dispatch Coordination', 'Invoicing & Collections'],
-    vehicleType: 'Logistics Operations Desk',
   },
 ];

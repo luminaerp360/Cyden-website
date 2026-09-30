@@ -168,7 +168,7 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
                     <span className="font-semibold text-neutral-800 block">{BRANCHES[0].operatingHours}</span>
                     <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full mt-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                      <span>Open Daily Until 8:00 PM (Inc. Sundays)</span>
+                      <span>Open Everyday to 8:30 PM</span>
                     </span>
                   </div>
                 </div>
@@ -410,7 +410,7 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
                       <span>{isSubmitting ? 'Sending Message...' : 'Submit Inquiry to Cyden Desk'}</span>
                     </motion.button>
                     <p className="text-[11px] text-neutral-400 text-center mt-2">
-                      Inquiries are directed to <span className="font-semibold text-neutral-600">info@cydendistributors.com</span>. We typically respond within 2-4 business hours.
+                      Inquiries are directed to <span className="font-semibold text-neutral-600">{COMPANY_INFO.contact.email}</span>. We typically respond within 2-4 business hours.
                     </p>
                   </div>
                 </form>

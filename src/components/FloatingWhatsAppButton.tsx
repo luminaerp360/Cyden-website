@@ -503,7 +503,7 @@ export default function FloatingWhatsAppButton() {
               <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-[10px] text-neutral-400">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3 text-neutral-400" />
-                  Open Mon–Sun (Until 8:00 PM)
+                  Open Everyday to 8:30 PM
                 </span>
                 <span className="flex items-center gap-1 text-emerald-600 font-semibold">
                   <CheckCircle2 className="w-3 h-3" />

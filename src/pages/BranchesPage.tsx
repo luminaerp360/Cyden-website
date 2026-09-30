@@ -188,7 +188,7 @@ export default function BranchesPage({ onNavigate, onOpenOrderModal }: BranchesP
                         <p className="font-medium text-xs sm:text-sm">{branch.operatingHours}</p>
                         <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full mt-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                          <span>Open Daily Until 8:00 PM (Inc. Sundays)</span>
+                          <span>Open Everyday to 8:30 PM</span>
                         </span>
                       </div>
                     </div>

@@ -247,7 +247,7 @@ export default function Footer({ onNavigate, onResetAgeGate }: FooterProps) {
               </li>
               <li className="text-xs text-emerald-400 pt-1 flex items-center gap-1.5 font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span>Open 7 Days: Mon–Sun (Until 8:00 PM Daily)</span>
+                <span>Open Everyday to 8:30 PM</span>
               </li>
             </ul>
           </div>

@@ -48,13 +48,15 @@ export default function RoutesDirectory({
 
   const categories = [
     { id: 'all', label: 'All Routes & Desks', count: DISTRIBUTION_ROUTES.length },
+    { id: 'support', label: 'Support & KSO', count: DISTRIBUTION_ROUTES.filter((r) => r.category === 'support').length },
     { id: 'core_route', label: 'Core Delivery Routes', count: DISTRIBUTION_ROUTES.filter((r) => r.category === 'core_route').length },
     { id: 'van', label: 'UDV Spirits Vans', count: DISTRIBUTION_ROUTES.filter((r) => r.category === 'van').length },
     { id: 'counter', label: 'Depot Counters', count: DISTRIBUTION_ROUTES.filter((r) => r.category === 'counter').length },
-    { id: 'support', label: 'Support & Dispatch', count: DISTRIBUTION_ROUTES.filter((r) => r.category === 'support').length },
   ];
 
   const quickFilterLocations = [
+    'KSO',
+    'Support',
     'Town',
     'Langas',
     'Kapsabet',

@@ -81,7 +81,7 @@ export default function Navbar({
               EABL Gold Distributor 2024
             </span>
             <span className="hidden sm:inline text-white/80">
-              Serving 600+ Outlets • Open 7 Days Daily (Until 8:00 PM)
+              Serving 600+ Outlets • Open Everyday to 8:30 PM
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs font-medium text-white/90">
