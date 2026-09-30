@@ -253,6 +253,8 @@ export default function Footer({ onNavigate, onResetAgeGate }: FooterProps) {
           </div>
         </div>
 
+        
+
         {/* Responsible Drinking Policy & Bottom Legal Strip */}
         <div className="border-t border-white/10 pt-8 space-y-4">
           <div className="p-4 rounded-xl bg-black/20 border border-white/5 text-center max-w-3xl mx-auto">
