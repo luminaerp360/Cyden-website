@@ -208,10 +208,18 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
     const orderRef = `CYD-${Math.floor(100000 + Math.random() * 900000)}`;
     const token = getToken();
 
-    const shippingAddress =
+    const formattedShippingAddress = [
+      fullName,
+      email ? `email: ${email}` : '',
+      `phone: ${phoneValid.formatted || phone}`,
+      `delivery: ${deliveryMethod}`,
       deliveryMethod === 'delivery'
         ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
-        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
+        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)',
+      deliveryNotes ? `notes: ${deliveryNotes}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     // 1. Resolve product IDs to backend MongoDB ObjectIds
     let orderItems = [];
@@ -233,20 +241,18 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       }));
     }
 
-    // 2. Record the order on the e-commerce backend API (if token available)
-    if (token) {
-      try {
-        await createOrder(
-          {
-            items: orderItems,
-            shippingAddress,
-            paymentMethod: 'mpesa',
-          },
-          token
-        );
-      } catch (orderErr) {
-        console.warn('Backend order recording notice:', orderErr);
-      }
+    // 2. Record the order on the e-commerce backend API (for both logged-in and guest users)
+    try {
+      await createOrder(
+        {
+          items: orderItems,
+          shippingAddress: formattedShippingAddress,
+          paymentMethod: 'mpesa',
+        },
+        token || undefined
+      );
+    } catch (orderErr) {
+      console.warn('Backend order recording notice:', orderErr);
     }
 
     // 3. Initiate live M-Pesa STK push via backend API
@@ -414,24 +420,47 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
   const handlePayOnDelivery = async () => {
     const token = getToken();
     const orderRef = `CYD-${Math.floor(100000 + Math.random() * 900000)}`;
-    const shippingAddress =
+    const phoneValid = formatKenyanPhone(mpesaPhone || phone);
+    const formattedShippingAddress = [
+      fullName,
+      email ? `email: ${email}` : '',
+      `phone: ${phoneValid.formatted || phone}`,
+      `delivery: ${deliveryMethod}`,
       deliveryMethod === 'delivery'
         ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
-        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
+        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)',
+      deliveryNotes ? `notes: ${deliveryNotes}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    let orderItems = [];
+    try {
+      orderItems = await Promise.all(
+        cart.map(async (it) => ({
+          productId: await resolveBackendProductId(it.product.id, it.product.name),
+          quantity: it.quantity,
+          price: it.product.price,
+          notes: it.product.name,
+        }))
+      );
+    } catch {
+      orderItems = cart.map((it) => ({
+        productId: it.product.id,
+        quantity: it.quantity,
+        price: it.product.price,
+        notes: it.product.name,
+      }));
+    }
 
     try {
       await createOrder(
         {
-          items: cart.map((it) => ({
-            productId: it.product.id,
-            quantity: it.quantity,
-            price: it.product.price,
-            notes: it.product.name,
-          })),
-          shippingAddress,
+          items: orderItems,
+          shippingAddress: formattedShippingAddress,
           paymentMethod: 'cash',
         },
-        token
+        token || undefined
       );
     } catch (err) {
       console.warn('Backend order recording notice:', err);
@@ -444,7 +473,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       customer_name: fullName,
       customer_phone: phone,
       outlet_name: customerType === 'wholesale' ? businessName : undefined,
-      delivery_location: shippingAddress,
+      delivery_location: formattedShippingAddress,
       delivery_method: deliveryMethod,
       items: cart.map((item) => ({
         product_id: item.product.id,
