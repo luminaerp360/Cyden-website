@@ -299,6 +299,9 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
     }).then((pollResult) => {
       if (pollResult && pollResult.success) {
         handleConfirmPayment(pollResult.receiptNumber || checkoutId);
+      } else {
+        setMpesaStatus('failed');
+        setStkError(pollResult?.message || 'Payment request was cancelled or declined on your phone.');
       }
     });
   };
@@ -315,6 +318,16 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
     try {
       if (checkoutRequestId) {
         const check = await checkMpesaTransaction(checkoutRequestId, token);
+        const status = String((check as any).status || '').toLowerCase();
+        const desc = String(
+          (check as any).ResponseDescription ?? (check as any).ResultDesc ?? (check as any).message ?? ''
+        );
+        if (status === 'failed' || /cancel|fail|timeout|declined|reject/i.test(desc)) {
+          setIsVerifying(false);
+          setMpesaStatus('failed');
+          setStkError(desc || 'Payment was cancelled or declined on your phone.');
+          return;
+        }
         const receipt =
           (check as any).receiptNumber ||
           (check as any).MpesaReceiptNumber ||
@@ -1248,20 +1261,20 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                       )}
                     </motion.button>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       <button
                         type="button"
                         onClick={handleInitiateStk}
-                        className="py-2.5 px-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="py-2.5 px-2.5 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <RefreshCw className="w-3.5 h-3.5" />
-                        <span>Resend STK Push</span>
+                        <span>Resend</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={handlePayOnDelivery}
-                        className="py-2.5 px-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="py-2.5 px-2.5 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <span>Pay on Delivery</span>
                       </button>
@@ -1272,9 +1285,20 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                           setMpesaStatus('idle');
                           setShowEditMpesaPhone(true);
                         }}
-                        className="py-2.5 px-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="py-2.5 px-2.5 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        <span>Change Number</span>
+                        <span>Change Line</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMpesaStatus('idle');
+                          setStkError(null);
+                        }}
+                        className="py-2.5 px-2.5 rounded-xl border border-red-200 hover:bg-red-50 text-xs font-semibold text-red-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <span>Cancel Prompt</span>
                       </button>
                     </div>
                   </div>
