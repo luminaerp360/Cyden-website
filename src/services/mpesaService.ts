@@ -151,21 +151,21 @@ export async function pollMpesaPayment(
       } catch {
         // Keep polling
       }
-    }
-
-    // Fallback: check by phone + amount
-    try {
-      const result = await findMpesaTransaction(phoneNumber, amount, token);
-      if (result.success && result.transaction) {
-        const receipt =
-          (result.transaction as any).receiptNumber ||
-          (result.transaction as any).MpesaReceiptNumber ||
-          checkoutId ||
-          'MPESA-PAID';
-        return { success: true, receiptNumber: receipt };
+    } else {
+      // Fallback: check by phone + amount only if no checkoutId
+      try {
+        const result = await findMpesaTransaction(phoneNumber, amount, token);
+        if (result.success && result.transaction) {
+          const receipt =
+            (result.transaction as any).receiptNumber ||
+            (result.transaction as any).MpesaReceiptNumber ||
+            checkoutId ||
+            'MPESA-PAID';
+          return { success: true, receiptNumber: receipt };
+        }
+      } catch {
+        // Keep polling
       }
-    } catch {
-      // Keep polling
     }
 
     if (i < attempts - 1) {
