@@ -122,7 +122,75 @@ export default function HomePage({ onNavigate, onOpenOrderModal }: HomePageProps
         </div>
 
         {/* Visual Category Showcase Cards with Atmospheric Imagery */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {/* Mobile / Responsive Auto-Moving Carousel (Moving from Left to Right) */}
+        <div className="lg:hidden relative w-full overflow-hidden py-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* Subtle Edge Fades */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-neutral-50 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-neutral-50 to-transparent z-10" />
+
+          <motion.div
+            className="flex gap-3 sm:gap-4 w-max cursor-grab active:cursor-grabbing hover:[animation-play-state:paused]"
+            animate={{ x: ['-50%', '0%'] }}
+            transition={{
+              x: {
+                repeat: Infinity,
+                repeatType: 'loop',
+                duration: 25,
+                ease: 'linear',
+              },
+            }}
+          >
+            {[...categoryCards, ...categoryCards].map((cat, idx) => {
+              const IconComp = cat.icon;
+              return (
+                <div key={`${cat.slug}-${idx}`} className="w-[160px] sm:w-[200px] shrink-0">
+                  <button
+                    onClick={() => onNavigate('/catalogue', cat.slug)}
+                    className="relative rounded-2xl overflow-hidden text-left h-44 sm:h-52 w-full group cursor-pointer border border-neutral-200/80 shadow-sm hover:shadow-xl transition-all"
+                  >
+                    {/* Background Image */}
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+
+                    {/* Dark Vignette Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-t ${cat.color} group-hover:opacity-90 transition-opacity`} />
+
+                    {/* Category Content */}
+                    <div className="relative z-10 p-3 sm:p-4 h-full flex flex-col justify-between text-white">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white">
+                          {cat.badge}
+                        </span>
+                        <div className="w-7 h-7 rounded-lg bg-black/40 backdrop-blur-md flex items-center justify-center text-white/90 group-hover:bg-[#3AA88C] transition-colors">
+                          <IconComp className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="font-black text-base sm:text-lg text-white group-hover:text-amber-300 transition-colors leading-tight">
+                          {cat.name}
+                        </h3>
+                        <p className="text-[11px] text-neutral-300 line-clamp-1 mt-0.5 font-medium">
+                          {cat.count}
+                        </p>
+                        <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[#3AA88C] group-hover:text-white transition-colors">
+                          <span>Shop Now</span>
+                          <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              );
+            })}
+          </motion.div>
+        </div>
+
+        {/* Desktop 5-Column Grid */}
+        <div className="hidden lg:grid lg:grid-cols-5 gap-3 sm:gap-4">
           {categoryCards.map((cat, index) => {
             const IconComp = cat.icon;
             return (
