@@ -15,6 +15,7 @@ export interface HeroSlide {
   subtitle: string;
   packshot: string;
   heroBg: string;
+  scaleClass?: string;
   category: string;
   badgeTop: string;
   badgeBottom: string;
@@ -31,9 +32,10 @@ const HERO_SLIDES: HeroSlide[] = [
     headlineLine1: 'IGNITE THE',
     headlineLine2: 'SMOLDERING RICHNESS',
     subtitle: 'Iconic 12-year-old blended Scotch whisky with layers of dark fruits, sweet vanilla, and signature peat smoke.',
-    packshot: '/hero/jw-bottle.png',
+    packshot: 'https://lumina360.sfo3.digitaloceanspaces.com/eccomerse/cyden/products/636862_johnnie_walker_black_label_375ml_bottle_.png',
     heroBg: '/hero/johnnie-walker-hero.jpg',
     category: 'Whisky',
+    scaleClass: 'scale-[1.5] sm:scale-[1.62] lg:scale-[1.72]',
     badgeTop: '20%',
     badgeBottom: 'OFF',
     badgeColor: '#E8582F',
@@ -63,9 +65,10 @@ const HERO_SLIDES: HeroSlide[] = [
     headlineLine1: 'DISTILLED BOTANICAL',
     headlineLine2: 'PERFECTION',
     subtitle: 'Crafted from 12 classic botanicals delivering crisp juniper elegance and a refreshing, balanced citrus finish.',
-    packshot: '/hero/gilbeys-bottle.png',
+    packshot: 'https://lumina360.sfo3.digitaloceanspaces.com/eccomerse/cyden/products/604021_gilbey_s_special_dry_gin_750ml_bottle_.png',
     heroBg: '/hero/gilbeys-hero.jpg',
     category: 'Gin',
+    scaleClass: 'scale-[1.5] sm:scale-[1.62] lg:scale-[1.72]',
     badgeTop: 'TOP',
     badgeBottom: 'SELLER',
     badgeColor: '#E8582F',
@@ -236,7 +239,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
                       src={slide.packshot}
                       alt={`${slide.headlineLine1} ${slide.headlineLine2}`}
                       loading="eager"
-                      className="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_35px_55px_rgba(0,0,0,0.92)] hover:scale-105 transition-transform duration-500 cursor-pointer"
+                      className={`relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_35px_55px_rgba(0,0,0,0.92)] transition-transform duration-500 cursor-pointer ${slide.scaleClass || "scale-100"} hover:brightness-105`}
                       onClick={() => onNavigate('/catalogue', slide.category)}
                     />
                   </div>
