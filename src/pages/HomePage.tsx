@@ -108,7 +108,7 @@ export default function HomePage({ onNavigate, onOpenOrderModal }: HomePageProps
               Only The Best Deals
             </h2>
             <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-              Discover our top wholesale &amp; retail deals across Beer, Gin, Whisky, Vodka, and Rum.
+              Discover our top commercial &amp; retail deals across Beer, Gin, Whisky, Vodka, and Rum.
             </p>
           </div>
 
@@ -271,7 +271,7 @@ export default function HomePage({ onNavigate, onOpenOrderModal }: HomePageProps
           </motion.button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {featuredDrinks.slice(0, 8).map((product, idx) => (
             <ProductCard
               key={product.id}

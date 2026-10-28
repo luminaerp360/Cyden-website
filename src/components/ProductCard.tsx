@@ -112,7 +112,7 @@ export default function ProductCard({ product, onRequestOrder, index = 0 }: Prod
       </div>
 
       {/* Product Image Stage */}
-      <div className="relative w-full h-48 sm:h-52 bg-gradient-to-b from-[#FAF9F6] to-neutral-100/70 p-4 flex items-center justify-center overflow-hidden">
+      <div className="relative w-full h-36 sm:h-48 md:h-52 bg-gradient-to-b from-[#FAF9F6] to-neutral-100/70 p-2.5 sm:p-4 flex items-center justify-center overflow-hidden">
         {currentImg && !hasFailedAll ? (
           <motion.img
             src={currentImg}
@@ -134,7 +134,7 @@ export default function ProductCard({ product, onRequestOrder, index = 0 }: Prod
       </div>
 
       {/* Clean Card Content */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
+      <div className="p-3 sm:p-4 md:p-5 flex-1 flex flex-col justify-between gap-2 sm:gap-3">
         {/* Brand & Size */}
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs font-medium text-neutral-500">
@@ -148,7 +148,7 @@ export default function ProductCard({ product, onRequestOrder, index = 0 }: Prod
 
           {/* Product Title */}
           <h3
-            className="font-bold text-sm sm:text-base text-neutral-900 group-hover:text-[#3AA88C] transition-colors line-clamp-1"
+            className="font-bold text-xs sm:text-sm md:text-base text-neutral-900 group-hover:text-[#3AA88C] transition-colors line-clamp-2"
             title={product.name}
           >
             {product.name}
@@ -158,7 +158,7 @@ export default function ProductCard({ product, onRequestOrder, index = 0 }: Prod
         {/* Pricing & Add to Cart Action */}
         <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2 mt-auto">
           <div className="min-w-0">
-            <span className="text-base sm:text-lg font-black text-neutral-900 tracking-tight whitespace-nowrap">
+            <span className="text-sm sm:text-base md:text-lg font-black text-neutral-900 tracking-tight whitespace-nowrap">
               {formatCurrency(product.price)}
             </span>
           </div>
@@ -223,7 +223,7 @@ export default function ProductCard({ product, onRequestOrder, index = 0 }: Prod
                 addToCart(product, 1);
                 setJustAddedAnim(Date.now());
               }}
-              className="px-3.5 py-2 rounded-xl bg-[#3AA88C] hover:bg-[#2F8D75] text-white font-bold text-xs tracking-wide transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-[#3AA88C] hover:bg-[#2F8D75] text-white font-bold text-xs tracking-wide transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               title={`Add ${product.name} to cart`}
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
