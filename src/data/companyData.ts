@@ -28,9 +28,9 @@ export const COMPANY_INFO = {
     country: 'Kenya',
   },
   socials: {
-    instagram: 'https://www.instagram.com/cydendistributors',
+    instagram: 'https://www.instagram.com/cydendistributors?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==',
     twitter: 'https://x.com/CydenDistribut1',
-    facebook: 'https://www.facebook.com/profile.php?id=100070853436866',
+    facebook: 'https://www.facebook.com/profile.php?id=100070853436866&sk=about',
     tiktok: 'https://vm.tiktok.com/ZMBo92seD/',
   },
   financialPartners: [
