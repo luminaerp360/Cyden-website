@@ -35,7 +35,7 @@ const HERO_SLIDES: HeroSlide[] = [
     packshot: 'https://lumina360.sfo3.digitaloceanspaces.com/eccomerse/cyden/products/636862_johnnie_walker_black_label_375ml_bottle_.png',
     heroBg: '/hero/johnnie-walker-hero.jpg',
     category: 'Whisky',
-    scaleClass: 'scale-[1.5] sm:scale-[1.62] lg:scale-[1.72]',
+    scaleClass: 'scale-[1.25] sm:scale-[1.4] md:scale-[1.62] lg:scale-[1.72]',
     badgeTop: '20%',
     badgeBottom: 'OFF',
     badgeColor: '#E8582F',
@@ -68,7 +68,7 @@ const HERO_SLIDES: HeroSlide[] = [
     packshot: 'https://lumina360.sfo3.digitaloceanspaces.com/eccomerse/cyden/products/604021_gilbey_s_special_dry_gin_750ml_bottle_.png',
     heroBg: '/hero/gilbeys-hero.jpg',
     category: 'Gin',
-    scaleClass: 'scale-[1.5] sm:scale-[1.62] lg:scale-[1.72]',
+    scaleClass: 'scale-[1.25] sm:scale-[1.4] md:scale-[1.62] lg:scale-[1.72]',
     badgeTop: 'TOP',
     badgeBottom: 'SELLER',
     badgeColor: '#E8582F',
@@ -113,7 +113,7 @@ const HERO_SLIDES: HeroSlide[] = [
 // Scalloped Sunburst 20% OFF / Deal Badge matching chupachap.co.ke
 function ScallopedBadge({ top, bottom, color = '#E8582F' }: { top: string; bottom: string; color?: string }) {
   return (
-    <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-44 lg:h-44 flex items-center justify-center filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)] select-none">
+    <div className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 flex items-center justify-center filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)] select-none">
       <svg viewBox="0 0 100 100" className="w-full h-full transform-gpu">
         <path
           d="M50 0 L58 12 L72 7 L76 21 L90 20 L89 35 L100 40 L94 53 L100 64 L89 71 L90 85 L76 84 L72 98 L58 92 L50 104 L42 92 L28 98 L24 84 L10 85 L11 71 L0 64 L6 53 L0 40 L11 35 L10 20 L24 21 L28 7 L42 12 Z"
@@ -123,10 +123,10 @@ function ScallopedBadge({ top, bottom, color = '#E8582F' }: { top: string; botto
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center leading-none">
-        <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight drop-shadow-md uppercase">
+        <span className="text-xs sm:text-lg md:text-2xl lg:text-4xl font-black tracking-tight drop-shadow-md uppercase">
           {top}
         </span>
-        <span className="text-xs sm:text-sm md:text-base lg:text-lg font-extrabold tracking-wider drop-shadow-md uppercase mt-0.5">
+        <span className="text-[8px] sm:text-[10px] md:text-sm lg:text-lg font-extrabold tracking-wider drop-shadow-md uppercase mt-0.5">
           {bottom}
         </span>
       </div>
@@ -174,7 +174,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
   return (
     <div className="relative w-full overflow-hidden select-none bg-[#091524]">
       {/* FULL-WIDTH HERO CAROUSEL BANNER */}
-      <div className="relative w-full h-[520px] sm:h-[580px] md:h-[630px] lg:h-[700px] xl:h-[740px] overflow-hidden bg-[#0A1626]">
+      <div className="relative w-full h-[580px] sm:h-[620px] md:h-[640px] lg:h-[700px] xl:h-[740px] overflow-hidden bg-[#0A1626]">
         
         {/* Pre-mounted Slides with Smooth Cross-Fade */}
         {HERO_SLIDES.map((slide, idx) => {
@@ -216,13 +216,13 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25 pointer-events-none" />
 
               {/* Full-Width Content Layout */}
-              <div className="relative z-10 w-full h-full px-8 sm:px-16 md:px-20 lg:px-28 xl:px-36 flex flex-col md:flex-row items-center justify-between">
+              <div className="relative z-10 w-full h-full px-4 sm:px-10 md:px-16 lg:px-28 xl:px-36 pt-4 pb-12 md:py-0 flex flex-col md:flex-row items-center justify-between">
                 
                 {/* Left Side: Product Packshot + Scalloped Badge */}
-                <div className="w-full md:w-1/2 h-full flex items-center justify-center md:justify-end lg:pr-12 xl:pr-16 relative">
+                <div className="w-full md:w-1/2 h-[46%] sm:h-[48%] md:h-full flex items-center justify-center md:justify-end lg:pr-12 xl:pr-16 relative">
                   
                   {/* Scalloped Badge (Overlapping left shoulder of bottle) */}
-                  <div className="absolute top-10 left-4 sm:top-14 sm:left-10 md:top-16 md:left-2 lg:left-6 xl:left-12 z-20 pointer-events-none">
+                  <div className="absolute top-2 left-6 sm:top-6 sm:left-10 md:top-16 md:left-2 lg:left-6 xl:left-12 z-20 pointer-events-none">
                     <ScallopedBadge
                       top={slide.badgeTop}
                       bottom={slide.badgeBottom}
@@ -231,7 +231,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
                   </div>
 
                   {/* Bottle Packshot */}
-                  <div className="relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-[78%] sm:h-[82%] md:h-[86%] lg:h-[90%] flex items-center justify-center">
+                  <div className="relative w-full max-w-xs sm:max-w-md md:max-w-xl lg:max-w-2xl h-full flex items-center justify-center">
                     {/* Pedestal Shadow */}
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-64 sm:w-80 md:w-96 h-6 bg-black/90 rounded-[100%] blur-[10px] pointer-events-none" />
 
@@ -246,7 +246,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
                 </div>
 
                 {/* Right Side: Big Bold White Typography (NO PRICES) */}
-                <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left space-y-4 sm:space-y-6 lg:pl-10 xl:pl-16">
+                <div className="w-full md:w-1/2 h-[54%] sm:h-[52%] md:h-auto flex flex-col items-center md:items-start text-center md:text-left justify-center space-y-2 sm:space-y-4 md:space-y-6 lg:pl-10 xl:pl-16">
                   
                   {/* Category / Collection Tag */}
                   <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-300">
@@ -255,22 +255,22 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
                   </div>
 
                   {/* Monumental 2-Line Headline */}
-                  <h1 className="text-white font-black text-4xl sm:text-6xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight leading-[0.92] uppercase drop-shadow-2xl">
+                  <h1 className="text-white font-black text-2xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight leading-[0.95] uppercase drop-shadow-2xl">
                     <span>{slide.headlineLine1}</span>
                     <br />
                     <span>{slide.headlineLine2}</span>
                   </h1>
 
                   {/* Subtitle Description */}
-                  <p className="text-sm sm:text-base lg:text-lg text-neutral-200 max-w-xl font-medium leading-relaxed drop-shadow-md">
+                  <p className="text-xs sm:text-sm lg:text-lg text-neutral-200 max-w-md sm:max-w-xl font-medium leading-relaxed drop-shadow-md line-clamp-2 sm:line-clamp-none">
                     {slide.subtitle}
                   </p>
 
                   {/* CTA Buttons */}
-                  <div className="pt-2 sm:pt-4 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                  <div className="pt-1 sm:pt-3 flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-4">
                     <button
                       onClick={() => onNavigate('/catalogue', slide.category)}
-                      className="px-8 py-3.5 sm:py-4 rounded-xl bg-[#3AA88C] hover:bg-[#2F8D75] text-white font-black text-sm sm:text-base tracking-wide transition-all shadow-xl flex items-center gap-2 cursor-pointer hover:scale-105"
+                      className="px-5 py-2.5 sm:px-8 sm:py-3.5 md:py-4 rounded-xl bg-[#3AA88C] hover:bg-[#2F8D75] text-white font-black text-xs sm:text-base tracking-wide transition-all shadow-xl flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
                     >
                       <span>Explore Drinks</span>
                       <ArrowRight className="w-5 h-5" />
@@ -278,7 +278,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
 
                     <button
                       onClick={() => onOpenOrderModal()}
-                      className="px-8 py-3.5 sm:py-4 rounded-xl bg-[#E8582F] hover:bg-[#D04620] text-white font-black text-sm sm:text-base tracking-wide transition-all shadow-xl flex items-center gap-2 cursor-pointer hover:scale-105"
+                      className="px-5 py-2.5 sm:px-8 sm:py-3.5 md:py-4 rounded-xl bg-[#E8582F] hover:bg-[#D04620] text-white font-black text-xs sm:text-base tracking-wide transition-all shadow-xl flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
                     >
                       <Building2 className="w-5 h-5" />
                       <span>Direct Order</span>
@@ -286,7 +286,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
                   </div>
 
                   {/* Legal Disclaimer Line */}
-                  <div className="pt-2 text-xs sm:text-sm text-white/80 font-bold uppercase tracking-widest">
+                  <div className="pt-1 text-[10px] sm:text-xs md:text-sm text-white/80 font-bold uppercase tracking-wider">
                     {slide.legalText}
                   </div>
                 </div>
@@ -299,7 +299,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
         <button
           type="button"
           onClick={handlePrev}
-          className="absolute left-3 sm:left-6 md:left-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/35 hover:bg-black/70 backdrop-blur-md border border-white/35 text-white flex items-center justify-center transition-all cursor-pointer shadow-2xl hover:scale-110 active:scale-95"
+          className="absolute left-2 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full bg-black/35 hover:bg-black/70 backdrop-blur-md border border-white/35 text-white flex items-center justify-center transition-all cursor-pointer shadow-2xl hover:scale-110 active:scale-95"
           aria-label="Previous Slide"
         >
           <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -309,14 +309,14 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
         <button
           type="button"
           onClick={handleNext}
-          className="absolute right-3 sm:right-6 md:right-8 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/35 hover:bg-black/70 backdrop-blur-md border border-white/35 text-white flex items-center justify-center transition-all cursor-pointer shadow-2xl hover:scale-110 active:scale-95"
+          className="absolute right-2 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full bg-black/35 hover:bg-black/70 backdrop-blur-md border border-white/35 text-white flex items-center justify-center transition-all cursor-pointer shadow-2xl hover:scale-110 active:scale-95"
           aria-label="Next Slide"
         >
           <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
         </button>
 
         {/* Slide Indicators Dots at the Bottom */}
-        <div className="absolute bottom-5 inset-x-0 z-20 flex items-center justify-center gap-2.5 pointer-events-auto">
+        <div className="absolute bottom-2 sm:bottom-4 inset-x-0 z-20 flex items-center justify-center gap-2 pointer-events-auto">
           {HERO_SLIDES.map((slide, idx) => (
             <button
               key={slide.id}
