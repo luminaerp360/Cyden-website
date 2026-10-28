@@ -12,7 +12,7 @@ declare global {
 
 // Configurable measurement and container IDs (Can also be overridden via Vite env)
 export const GTM_ID = import.meta.env.VITE_GTM_ID || 'GTM-5S7HMX4H';
-export const GA4_ID = import.meta.env.VITE_GA4_ID || 'G-XXXXXXXXXX';
+export const GA4_ID = import.meta.env.VITE_GA4_ID || 'G-RY43MHR8KJ';
 
 /**
  * Push arbitrary data payload to Google Tag Manager dataLayer safely

@@ -108,7 +108,7 @@ export default function HomePage({ onNavigate, onOpenOrderModal }: HomePageProps
               Only The Best Deals
             </h2>
             <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-              Discover our top wholesale &amp; retail deals across Beer, Gin, Whisky, Vodka, and Rum.
+              Discover our top commercial &amp; retail deals across Beer, Gin, Whisky, Vodka, and Rum.
             </p>
           </div>
 
