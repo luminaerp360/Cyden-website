@@ -24,6 +24,7 @@ import { CartProvider, useCart } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import AuthModal from './components/AuthModal';
 import MyOrdersModal from './components/MyOrdersModal';
+import { trackGTMPageView } from './utils/gtm';
 
 function CydenDistributorsApp() {
   const { openCheckout, addToCart } = useCart();
@@ -96,9 +97,9 @@ function CydenDistributorsApp() {
       description =
         'Discover Cyden Distributors Limited, founded in 2013 and crowned EABL Gold Distributor of the Year 2024. Trusted partner to 600+ hospitality and retail outlets.';
     } else if (currentRoute === '/contact') {
-      title = 'Contact & Wholesale Supply Inquiries — Cyden Distributors Limited';
+      title = 'Contact & Commercial Supply Inquiries — Cyden Distributors Limited';
       description =
-        'Contact Cyden Distributors central office in Eldoret and Iten sub-depot for wholesale beverage orders, commercial bar accounts, and direct dispatch.';
+        'Contact Cyden Distributors central office in Eldoret and Iten sub-depot for commercial beverage orders, bar accounts, and direct dispatch.';
     }
 
     // Update document title
@@ -121,18 +122,24 @@ function CydenDistributorsApp() {
       element.setAttribute(attribute, content);
     };
 
+    const baseOrigin = 'https://www.cydendistributors.co.ke';
+    const canonicalUrl = `${baseOrigin}${currentRoute === '/' ? '/' : currentRoute}`;
+
     updateMetaTag('meta[name="description"]', description);
     updateMetaTag('meta[property="og:title"]', title);
     updateMetaTag('meta[property="og:description"]', description);
-    updateMetaTag('meta[property="og:url"]', window.location.href);
+    updateMetaTag('meta[property="og:url"]', canonicalUrl);
     updateMetaTag('meta[name="twitter:title"]', title);
     updateMetaTag('meta[name="twitter:description"]', description);
 
-    // Update canonical link
+    // Update canonical link to strict production URL
     let canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
-      canonical.setAttribute('href', window.location.href);
+      canonical.setAttribute('href', canonicalUrl);
     }
+
+    // Phase 2.3: Trigger GTM & GA4 SPA Virtual Pageview
+    trackGTMPageView(currentRoute, title);
   }, [currentRoute, selectedCatalogueCategory]);
 
   const navigateTo = useCallback((route: string, categoryFilter?: string) => {
@@ -147,7 +154,7 @@ function CydenDistributorsApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // One Unified Checkout Handler for Retail & Wholesale orders
+  // One Unified Checkout Handler for Retail & Commercial orders
   const handleOpenOrderModal = (product?: Product) => {
     if (product) {
       addToCart(product, 1);

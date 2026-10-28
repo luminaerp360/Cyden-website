@@ -112,7 +112,7 @@ export default function OrderRequestModal({
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-base tracking-tight">Request Wholesale Order</h3>
+              <h3 className="font-bold text-base tracking-tight">Request Direct Order</h3>
               <p className="text-xs text-white/75">B2B Outlet Fast-Dispatch Desk</p>
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function OrderRequestModal({
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-[#E8582F] flex-shrink-0 mt-0.5" />
                 <p>
-                  <strong>B2B Wholesale Ordering:</strong> This service caters to licensed retail outlets, bars, clubs, and hotels in Uasin Gishu, Elgeyo Marakwet, and Nandi County.
+                  <strong>B2B Commercial Ordering:</strong> This service caters to licensed retail outlets, bars, clubs, and hotels in Uasin Gishu, Elgeyo Marakwet, and Nandi County.
                 </p>
               </div>
 
@@ -322,7 +322,7 @@ export default function OrderRequestModal({
                   className="flex-1 py-3 px-5 rounded-xl bg-[#E8582F] hover:bg-[#D04620] text-white font-bold text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <Send className="w-4 h-4" />
-                  <span>{isSubmitting ? 'Logging Request...' : 'Submit Wholesale Order'}</span>
+                  <span>{isSubmitting ? 'Logging Request...' : 'Submit Direct Order'}</span>
                 </button>
                 <a
                   href="tel:+254722400409"

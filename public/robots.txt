@@ -1,4 +1,7 @@
+# Robots.txt for Cyden Distributors Limited
 User-agent: *
 Allow: /
 
-Sitemap: https://ais-pre-pvg34pyr3hg5iabrpzgywv-204139193172.europe-west1.run.app/sitemap.xml
+# Host & Sitemap specification
+Host: https://www.cydendistributors.co.ke
+Sitemap: https://www.cydendistributors.co.ke/sitemap.xml

@@ -36,7 +36,7 @@ export default function Footer({ onNavigate, onResetAgeGate }: FooterProps) {
 
   return (
     <footer className="bg-[#122B4E] text-white pt-16 pb-12 border-t border-[#1B3E6F]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Top Responsible Drinking & Gold Recognition Banner */}
         <div className="p-4 rounded-2xl bg-gradient-to-r from-[#1B3E6F] via-[#3AA88C]/30 to-[#1B3E6F] border border-[#3AA88C]/30 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-left">

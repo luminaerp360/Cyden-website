@@ -28,7 +28,7 @@ export default function BranchesPage({ onNavigate, onOpenOrderModal }: BranchesP
       <section className="relative overflow-hidden bg-gradient-to-b from-[#1B3E6F] to-[#122B4E] text-white py-14 lg:py-20">
         <AmbientBackground variant="hero" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
+        <div className="w-full px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-xs text-white/70 font-medium" aria-label="Breadcrumb">
             <button
@@ -81,12 +81,12 @@ export default function BranchesPage({ onNavigate, onOpenOrderModal }: BranchesP
       </section>
 
       {/* 2. FIELD DISTRIBUTION ROUTES & DIRECT DESKS DIRECTORY */}
-      <section id="field-routes" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="field-routes" className="w-full px-4 sm:px-6 lg:px-8">
         <RoutesDirectory />
       </section>
 
       {/* 3. PHYSICAL DEPOT BRANCHES & INTERACTIVE GOOGLE MAPS */}
-      <section id="branch-maps" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pt-4">
+      <section id="branch-maps" className="w-full px-4 sm:px-6 lg:px-8 space-y-8 pt-4">
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#1B3E6F]/10 text-[#1B3E6F]">
             <Building2 className="w-3.5 h-3.5" />
@@ -278,7 +278,7 @@ export default function BranchesPage({ onNavigate, onOpenOrderModal }: BranchesP
       </section>
 
       {/* 4. LOGISTICS COVERAGE HIGHLIGHT WITH MOTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -320,7 +320,7 @@ export const DISTRIBUTION_ROUTES: DistributionRoute[] = [
     phoneNumber: '0740 631 285',
     phoneRaw: '+254740631285',
     tillNumber: '992479',
-    site: 'Serves walk-in customers and direct wholesale collection at Rupa Godowns, Eldoret',
+    site: 'Serves walk-in customers and direct depot collection at Rupa Godowns, Eldoret',
     category: 'counter',
     categoryLabel: 'Depot Counter',
     waypoints: ['Rupa Godowns', 'Malaba Road Corridor', 'Eldoret Industrial Area'],

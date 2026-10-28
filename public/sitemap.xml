@@ -1,33 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Homepage -->
   <url>
-    <loc>https://ais-pre-pvg34pyr3hg5iabrpzgywv-204139193172.europe-west1.run.app/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <loc>https://www.cydendistributors.co.ke/</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.cydendistributors.co.ke/og-image.jpg</image:loc>
+      <image:title>Cyden Distributors Limited — Official EABL Gold Distributor</image:title>
+      <image:caption>Beverage distribution warehouse and genuine EABL beers, whiskies, and spirits in Eldoret, Kenya</image:caption>
+    </image:image>
   </url>
+
+  <!-- Beverage Catalogue -->
   <url>
-    <loc>https://ais-pre-pvg34pyr3hg5iabrpzgywv-204139193172.europe-west1.run.app/catalogue</loc>
-    <lastmod>2026-09-21</lastmod>
+    <loc>https://www.cydendistributors.co.ke/catalogue</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- Branches & Warehouses (Eldoret & Iten) -->
   <url>
-    <loc>https://ais-pre-pvg34pyr3hg5iabrpzgywv-204139193172.europe-west1.run.app/branches</loc>
-    <lastmod>2026-09-21</lastmod>
+    <loc>https://www.cydendistributors.co.ke/branches</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- About Us & EABL Gold Recognition -->
   <url>
-    <loc>https://ais-pre-pvg34pyr3hg5iabrpzgywv-204139193172.europe-west1.run.app/about</loc>
-    <lastmod>2026-09-21</lastmod>
+    <loc>https://www.cydendistributors.co.ke/about</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
+
+  <!-- Contact & Direct Supply Desk -->
   <url>
-    <loc>https://ais-pre-pvg34pyr3hg5iabrpzgywv-204139193172.europe-west1.run.app/contact</loc>
-    <lastmod>2026-09-21</lastmod>
+    <loc>https://www.cydendistributors.co.ke/contact</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
 </urlset>

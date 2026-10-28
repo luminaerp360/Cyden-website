@@ -249,7 +249,7 @@ export default function WhatsAppOrderModal() {
                 1. Select Order Type:
               </label>
               <span className="text-[11px] text-neutral-500 font-medium">
-                {orderType === 'b2b' ? 'Wholesale / Commercial' : 'Home / Personal Delivery'}
+                {orderType === 'b2b' ? 'Outlet / Commercial' : 'Home / Personal Delivery'}
               </span>
             </div>
 

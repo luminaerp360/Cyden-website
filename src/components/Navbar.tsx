@@ -73,8 +73,8 @@ export default function Navbar({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 transition-all shadow-xs">
       {/* Top Notification Announcement Bar */}
-      <div className="hidden sm:block bg-[#1B3E6F] text-white text-xs py-1.5 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div className="hidden sm:block bg-[#1B3E6F] text-white text-xs py-1.5">
+        <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 bg-[#F2A93B]/20 text-[#F2A93B] px-2 py-0.5 rounded-full text-[11px] font-bold">
               <Award className="w-3 h-3" />
@@ -99,7 +99,7 @@ export default function Navbar({
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
           {/* Brand Logo */}
           <button
@@ -164,16 +164,16 @@ export default function Navbar({
               )}
             </motion.button>
 
-            {/* Direct B2B Wholesale Order */}
+            {/* Direct Commercial Order */}
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={onOpenOrderModal}
               className="px-3 py-2 rounded-xl bg-[#1B3E6F] hover:bg-[#122B4E] text-white font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
-              title="Order in Wholesale Crates / Commercial Delivery"
+              title="Commercial Delivery & Direct Orders"
             >
               <CreditCard className="w-3.5 h-3.5 text-[#3AA88C]" />
-              <span>Wholesale</span>
+              <span>Direct Order</span>
             </motion.button>
 
             {/* User Account / Auth Button */}
@@ -254,13 +254,13 @@ export default function Navbar({
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setIsCartOpen(true)}
-              className="p-1.5 sm:p-2 rounded-xl bg-[#3AA88C] hover:bg-[#2C856E] text-white text-xs font-bold flex items-center gap-1 cursor-pointer shadow-xs relative"
+              className="w-9 h-9 rounded-xl bg-[#3AA88C] hover:bg-[#2C856E] text-white flex items-center justify-center cursor-pointer shadow-xs relative"
               title="Cart"
               aria-label="View Shopping Cart"
             >
               <ShoppingBag className="w-4 h-4" />
               {totalItems > 0 && (
-                <span className="bg-[#E8582F] text-white text-[10px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center border border-white/40">
+                <span className="absolute -top-1.5 -right-1.5 bg-[#E8582F] text-white text-[10px] font-black min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center border-2 border-white">
                   {totalItems}
                 </span>
               )}
@@ -271,7 +271,7 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={onOpenMyOrders}
-                className="p-1.5 sm:p-2 rounded-xl bg-neutral-100 text-[#1B3E6F] text-xs font-bold flex items-center gap-1 cursor-pointer"
+                className="w-9 h-9 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-[#1B3E6F] flex items-center justify-center cursor-pointer border border-neutral-200"
                 title="My Orders"
               >
                 <Package className="w-4 h-4 text-[#1B3E6F]" />
@@ -280,7 +280,7 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => onOpenAuth('login')}
-                className="p-1.5 sm:p-2 rounded-xl bg-neutral-100 text-[#1B3E6F] text-xs font-bold flex items-center gap-1 cursor-pointer"
+                className="w-9 h-9 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-[#1B3E6F] flex items-center justify-center cursor-pointer border border-neutral-200"
                 title="Sign In"
               >
                 <User className="w-4 h-4 text-[#1B3E6F]" />
@@ -290,10 +290,10 @@ export default function Navbar({
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 sm:p-2 rounded-xl text-neutral-700 hover:bg-neutral-100 focus:outline-none cursor-pointer"
+              className="w-9 h-9 rounded-xl text-neutral-700 hover:bg-neutral-100 flex items-center justify-center focus:outline-none cursor-pointer"
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </motion.button>
           </div>
         </div>
@@ -401,7 +401,7 @@ export default function Navbar({
                 className="w-full py-3 px-4 rounded-xl bg-[#1B3E6F] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 <CreditCard className="w-4 h-4 text-[#3AA88C]" />
-                <span>Wholesale & Commercial Orders (Cyden Direct)</span>
+                <span>Commercial & Direct Orders (Cyden Direct)</span>
               </button>
             </div>
           </motion.div>

@@ -157,7 +157,7 @@ export default function FloatingWhatsAppButton() {
   return (
     <div
       ref={popoverRef}
-      className="fixed bottom-6 right-4 sm:right-6 z-40 select-none flex flex-col items-end"
+      className="fixed bottom-4 right-3 sm:bottom-6 sm:right-6 z-40 select-none flex flex-col items-end"
     >
       {/* 1. Interactive Animated Popover Window */}
       <AnimatePresence>
@@ -167,7 +167,7 @@ export default function FloatingWhatsAppButton() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 16 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="absolute bottom-16 sm:bottom-18 right-0 w-[calc(100vw-2rem)] sm:w-[410px] bg-white rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden flex flex-col z-50 text-neutral-800"
+            className="absolute bottom-16 sm:bottom-18 right-0 w-[calc(100vw-1.5rem)] max-w-[390px] sm:w-[410px] bg-white rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden flex flex-col z-50 text-neutral-800"
           >
             {/* Header with WhatsApp Emerald Palette & Modern Icon */}
             <div className="bg-gradient-to-r from-[#075E54] via-[#128C7E] to-[#25D366] text-white p-4 flex items-center justify-between relative overflow-hidden">
@@ -479,7 +479,7 @@ export default function FloatingWhatsAppButton() {
                     <div className="w-5 h-5 rounded-md bg-emerald-100 text-[#075E54] flex items-center justify-center">
                       <FileText className="w-3 h-3" />
                     </div>
-                    <span className="font-semibold text-[11px]">Request Wholesale Price List</span>
+                    <span className="font-semibold text-[11px]">Request Beverage Price List</span>
                   </div>
                   <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-[#128C7E]" />
                 </button>
@@ -537,11 +537,11 @@ export default function FloatingWhatsAppButton() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.94 }}
             onClick={() => setIsOpen(!isOpen)}
-            className="relative flex items-center gap-2.5 pl-3.5 pr-4 py-3 rounded-full bg-gradient-to-r from-[#25D366] to-[#20BD5A] hover:from-[#20BD5A] hover:to-[#1DA850] text-white shadow-xl hover:shadow-2xl hover:shadow-emerald-500/30 border-2 border-white cursor-pointer transition-all group"
+            className="relative flex items-center justify-center p-3 sm:pl-3.5 sm:pr-4 sm:py-3 rounded-full bg-gradient-to-r from-[#25D366] to-[#20BD5A] hover:from-[#20BD5A] hover:to-[#1DA850] text-white shadow-xl hover:shadow-2xl hover:shadow-emerald-500/30 border-2 border-white cursor-pointer transition-all group"
             aria-label="Open WhatsApp Order Desk"
           >
             <div className="relative flex items-center justify-center">
-              <WhatsAppIcon className="w-6 h-6 text-white group-hover:rotate-6 transition-transform" />
+              <WhatsAppIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:rotate-6 transition-transform" />
 
               {totalItems > 0 && (
                 <motion.span
@@ -554,7 +554,7 @@ export default function FloatingWhatsAppButton() {
               )}
             </div>
 
-            <div className="text-left leading-tight hidden xs:block sm:block">
+            <div className="text-left leading-tight hidden sm:block">
               <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-950/80">
                 {totalItems > 0 ? 'Send Order' : 'Order On'}
               </div>

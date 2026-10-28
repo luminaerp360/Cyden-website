@@ -43,7 +43,7 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
     email: '',
     phone: '',
     outletName: '',
-    inquiryType: 'Wholesale Beverage Distribution',
+    inquiryType: 'Commercial Beverage Distribution',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,7 +66,7 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
       <section className="relative overflow-hidden bg-gradient-to-b from-[#1B3E6F] to-[#122B4E] text-white py-14 lg:py-20">
         <AmbientBackground variant="hero" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
+        <div className="w-full px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-xs text-white/70 font-medium" aria-label="Breadcrumb">
             <button
@@ -89,14 +89,14 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
               Get in Touch with Cyden Distributors
             </h1>
             <p className="text-sm sm:text-base text-neutral-300 leading-relaxed pt-1">
-              Connect with our Eldoret sales desk or Iten depository for beverage wholesale supply, account registration, and scheduled route deliveries.
+              Connect with our Eldoret sales desk or Iten depository for commercial beverage distribution, account registration, and scheduled route deliveries.
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* 2. FORM & CONTACT DETAILS SPLIT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left: Contact Details Card & Branches */}
           <motion.div
@@ -297,7 +297,7 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
                           email: '',
                           phone: '',
                           outletName: '',
-                          inquiryType: 'Wholesale Beverage Distribution',
+                          inquiryType: 'Commercial Beverage Distribution',
                           message: '',
                         });
                       }}
@@ -376,7 +376,7 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
                       onChange={(e) => setFormData({ ...formData, inquiryType: e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-[#F8F7F4] border border-neutral-200 rounded-xl text-xs sm:text-sm text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#3AA88C]"
                     >
-                      <option value="Wholesale Beverage Distribution">Wholesale Beverage Distribution / Route Delivery</option>
+                      <option value="Commercial Beverage Distribution">Commercial Beverage Distribution / Route Delivery</option>
                       <option value="New Outlet Account Registration">New Outlet Account Registration & Credit Terms</option>
                       <option value="Special Events / Bulk Keg Supplies">Special Events / Bulk Keg Supplies (Weddings, Corporate)</option>
                       <option value="TheBar Storefront Inquiries">TheBar Storefront Consumer Ordering</option>
@@ -421,12 +421,12 @@ export default function ContactPage({ onNavigate }: ContactPageProps) {
       </section>
 
       {/* 3. FIELD DISTRIBUTION ROUTES & TILLS DIRECTORY */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <RoutesDirectory />
       </section>
 
       {/* 4. EMBEDDED MAP SECTION WITH BRANCH SELECTOR */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

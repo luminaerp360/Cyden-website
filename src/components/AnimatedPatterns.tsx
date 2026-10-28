@@ -787,7 +787,7 @@ export function AnimatedDotPattern({ className = '' }: { className?: string }) {
 }
 
 /**
- * Animated Flowing Ribbon for the Wholesale CTA Banner
+ * Animated Flowing Ribbon for the Commercial CTA Banner
  */
 export function AnimatedBannerRibbon() {
   return (

@@ -148,7 +148,7 @@ export default function CataloguePage({
       <section className="relative overflow-hidden bg-gradient-to-b from-[#1B3E6F] to-[#122B4E] text-white py-12 lg:py-16">
         <AmbientBackground variant="hero" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
+        <div className="w-full px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-xs text-white/70 font-medium" aria-label="Breadcrumb">
             <button
@@ -170,7 +170,7 @@ export default function CataloguePage({
             >
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3AA88C]/20 text-xs font-bold text-[#3AA88C]">
                 <Layers className="w-3.5 h-3.5" />
-                <span>Retail & Wholesale Beverage Ordering</span>
+                <span>Retail & Commercial Beverage Ordering</span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
                 Beverage Catalogue & Fast Delivery
@@ -231,7 +231,7 @@ export default function CataloguePage({
       </section>
 
       {/* 2. FILTER & SEARCH CONTROL BAR */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -350,7 +350,7 @@ export default function CataloguePage({
       </section>
 
       {/* 3. PRODUCT GRID WITH ANIMATIONS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-4">
           <p className="text-xs text-neutral-500 font-medium">
             Showing <strong className="text-neutral-900">{products.length}</strong> items in catalogue
@@ -459,7 +459,7 @@ export default function CataloguePage({
       </section>
 
       {/* 5. DIRECT CYDEN DISTRIBUTORS CHECKOUT BANNER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <section className="w-full px-4 sm:px-6 lg:px-8 pt-4">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}

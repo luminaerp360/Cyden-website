@@ -123,7 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <p className="text-xs text-neutral-500 mt-0.5">
               {mode === 'login'
                 ? 'Sign in to track orders, manage deliveries & fast-track checkout.'
-                : 'Register for wholesale and retail ordering with verified EABL dispatch.'}
+                : 'Register for commercial and retail ordering with verified EABL dispatch.'}
             </p>
           </div>
           <button

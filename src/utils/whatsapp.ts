@@ -77,7 +77,7 @@ export function generateWhatsAppUrl({
 
   const isB2B = orderType === 'b2b';
   const orderTypeHeader = isB2B
-    ? '🏢 *ORDER TYPE: B2B COMMERCIAL (Bar / Outlet / Wholesale)*'
+    ? '🏢 *ORDER TYPE: B2B COMMERCIAL (Bar / Lounge / Outlet)*'
     : '👤 *ORDER TYPE: PERSONAL / INDIVIDUAL ORDER*';
 
   // Computed maps link if GPS coords provided
@@ -155,7 +155,7 @@ ${notes ? `📝 *Special Instructions:* ${notes}\n------------------------------
   } else if (messageType === 'price_list') {
     text = `Hello Cyden Distributors (${branch.name}),
 
-I would like to request your official wholesale price list for EABL beers, spirits, and wines.
+I would like to request your official beverage price list for EABL beers, spirits, and wines.
 
 ${isB2B ? 'Type: B2B Commercial Outlet' : 'Type: Individual / Personal'}
 ${outletName ? `Outlet: ${outletName}\n` : ''}${customerName ? `Name: ${customerName}\n` : ''}${

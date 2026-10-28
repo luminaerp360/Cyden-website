@@ -28,7 +28,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
       <section className="relative overflow-hidden bg-gradient-to-b from-[#1B3E6F] to-[#122B4E] text-white py-14 lg:py-20">
         <AmbientBackground variant="hero" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
+        <div className="w-full px-4 sm:px-6 lg:px-8 space-y-4 text-left relative z-10">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-xs text-white/70 font-medium" aria-label="Breadcrumb">
             <button
@@ -62,7 +62,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
       </section>
 
       {/* 2. OUR STORY NARRATIVE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -116,17 +116,17 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
           >
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-neutral-200 bg-white p-2">
               <img
-                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80"
-                alt="Beverage warehouse and distribution fleet operations"
-                className="w-full h-80 object-cover rounded-2xl"
+                src="/about/cyden-team.jpg"
+                alt="Cyden Distributors authorized EABL beverage operations and customer service"
+                className="w-full h-80 sm:h-96 object-cover rounded-2xl"
               />
               <div className="p-4 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#1B3E6F]">
                   <Truck className="w-4 h-4 text-[#3AA88C]" />
-                  <span>Logistics & Cold Storage Infrastructure</span>
+                  <span>Distribution Operations & Direct Fulfillment</span>
                 </div>
                 <p className="text-xs text-neutral-600">
-                  Fully equipped warehouse staging in Eldoret with strict lot traceability and temperature regulation for draft beers and premium spirits.
+                  Authentic EABL beverage stock, counter service, and fleet staging in Eldoret & Iten, directly supplying over 600 retail and hospitality partners.
                 </p>
               </div>
             </div>
@@ -135,7 +135,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
       </section>
 
       {/* 3. MISSION & VISION (TWO-COLUMN CARDS) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Mission Card */}
           <motion.div
@@ -191,7 +191,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
       <section className="bg-white py-16 border-y border-neutral-200/80 relative overflow-hidden">
         <AmbientBackground variant="light" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
+        <div className="w-full px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#3AA88C]">
               Historical Growth & Accolades
@@ -282,7 +282,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
       </section>
 
       {/* 5. FINANCIAL & RETAIL CREDIT PARTNERS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -325,7 +325,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
       </section>
 
       {/* 6. GET IN TOUCH BANNER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -338,7 +338,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
               Partner with Cyden Distributors
             </h3>
             <p className="text-sm text-white/90 max-w-xl">
-              Are you opening a new bar, restaurant, or wholesale outlet in Eldoret or Iten? Join over 600 satisfied partners enjoying priority delivery and credit terms.
+              Are you opening a new bar, restaurant, or retail outlet in Eldoret or Iten? Join over 600 satisfied partners enjoying priority delivery and credit terms.
             </p>
           </div>
 
@@ -357,7 +357,7 @@ export default function AboutPage({ onNavigate, onOpenOrderModal }: AboutPagePro
               onClick={onOpenOrderModal}
               className="px-6 py-3.5 rounded-xl bg-[#E8582F] hover:bg-[#D04620] text-white font-bold text-sm shadow-md transition-colors cursor-pointer"
             >
-              Request Wholesale Stock
+              Request Direct Stock
             </motion.button>
           </div>
         </motion.div>

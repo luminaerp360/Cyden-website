@@ -175,7 +175,7 @@ export default function Logo({
             <span className={`text-[9px] sm:text-[10px] font-bold tracking-wide ${isDark ? 'text-[#F2A93B]' : 'text-[#E8582F]'}`}>
               EABL Gold Distributor
             </span>
-            <span className={`text-[8px] sm:text-[9px] ${isDark ? 'text-white/60' : 'text-neutral-500'}`}>
+            <span className={`text-[8px] sm:text-[9px] hidden sm:inline ${isDark ? 'text-white/60' : 'text-neutral-500'}`}>
               • Eldoret, Kenya
             </span>
           </div>

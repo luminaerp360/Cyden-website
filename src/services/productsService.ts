@@ -134,7 +134,7 @@ export function normalizeApiProduct(
     fallback_image_url: undefined,
     in_stock: inStock,
     featured: Boolean(raw.featured),
-    description: raw.description || `${raw.name} — genuine wholesale beverage supply.`,
+    description: raw.description || `${raw.name} — genuine EABL beverage supply.`,
     abv,
     packaging: specs.casePack ? `Pack of ${specs.casePack}` : 'Bottle / Pack',
     thebar_url: `https://ke.thebar.com/#/search?q=${encodeURIComponent(raw.name)}`,

@@ -160,7 +160,7 @@ export const SYNCED_THEBAR_CATALOGUE: Product[] = [
     "fallback_image_url": "https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80",
     "in_stock": true,
     "featured": false,
-    "description": "Full commercial wholesale crate of 25 bottles of Tusker Cider. Ideal for bars, lounges, and event restocking.",
+    "description": "Full commercial crate of 25 bottles of Tusker Cider. Ideal for bars, lounges, and event restocking.",
     "abv": "4.5%",
     "packaging": "Crate of 25 Bottles",
     "thebar_url": "https://ke.thebar.com/#/product/Tusker%20Cider/99",

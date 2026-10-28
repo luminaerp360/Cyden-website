@@ -87,7 +87,7 @@ export default function CartDrawer({ onNavigateToCatalogue }: CartDrawerProps) {
                     </span>
                   </h2>
                   <p className="text-[10px] sm:text-[11px] text-neutral-300 truncate">
-                    Retail & Wholesale • Lipa Na M-Pesa STK
+                    Retail & Commercial • Lipa Na M-Pesa STK
                   </p>
                 </div>
               </div>
