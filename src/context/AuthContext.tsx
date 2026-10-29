@@ -5,6 +5,7 @@ import {
   LoginPayload,
   loginUser,
   signupUser,
+  googleLoginUser,
   logoutUser,
   fetchMe,
   refreshAccessToken,
@@ -25,6 +26,7 @@ interface AuthContextValue {
   isInitializing: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   signup: (payload: SignupPayload) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<boolean>;
   getToken: () => string | null;
@@ -95,6 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (uid) migrateGuestOrders(uid);
   }, []);
 
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const result = await googleLoginUser({ idToken });
+    const me = result.user ?? (await fetchMe());
+    setUser(me);
+    const uid = userIdOf(me);
+    if (uid) migrateGuestOrders(uid);
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await logoutUser();
@@ -125,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isInitializing,
         login,
         signup,
+        loginWithGoogle,
         logout,
         refresh,
         getToken,

@@ -1,4 +1,10 @@
-export const API_BASE_URL = 'https://ecommerse.lumina360.tech';
+export const API_BASE_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ||
+  'https://ecommerse.lumina360.tech';
+
+export const GOOGLE_CLIENT_ID =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) ||
+  '';
 
 export const DEFAULT_TENANT_ID = 'cyden-distributors';
 
@@ -6,6 +12,7 @@ export const API_ENDPOINTS = {
   // Auth
   signup: '/auth/signup',
   login: '/auth/login',
+  google: '/auth/google',
   refresh: '/auth/refresh',
   logout: '/auth/logout',
   me: '/users/me',
