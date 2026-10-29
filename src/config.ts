@@ -1,6 +1,11 @@
+const isDevelopment =
+  typeof import.meta !== 'undefined' && Boolean(import.meta.env?.DEV);
+
 export const API_BASE_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ||
-  'https://ecommerse.lumina360.tech';
+  (isDevelopment
+    ? 'http://localhost:3000'
+    : 'https://ecommerse.lumina360.tech');
 
 export const GOOGLE_CLIENT_ID =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) ||
