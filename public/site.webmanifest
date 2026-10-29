@@ -1,0 +1,19 @@
+{
+  "name": "Cyden Distributors Limited",
+  "short_name": "Cyden",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#1B3E6F",
+  "background_color": "#FFFFFF",
+  "display": "standalone"
+}
