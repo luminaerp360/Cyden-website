@@ -249,7 +249,7 @@ export default function CartDrawer({ onNavigateToCatalogue }: CartDrawerProps) {
                       <span>Eldoret & Iten Fast Delivery</span>
                     </div>
                     <p className="text-[11px] text-emerald-700 leading-snug">
-                      Orders are dispatched directly from our central godowns at Rupa or Sitet Iten. Free delivery applies for orders over KSH 4,000.
+                      Orders are dispatched directly from our central godowns at Rupa or Sitet Iten. Free delivery applies for orders over KSH  within 10 km.
                     </p>
                   </div>
                 </>

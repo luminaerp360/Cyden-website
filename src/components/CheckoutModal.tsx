@@ -70,6 +70,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
     deliveryDistanceKm,
     deliveryExplanation,
     isFreeDelivery,
+    shippingSettings,
     grandTotal,
     totalItems,
     deliveryDetails,
@@ -762,7 +763,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                     <div className="flex items-center justify-between text-slate-600">
                       <span className="flex items-center gap-1">
                         Delivery Fee
-                        {deliveryDistanceKm !== null && deliveryMethod === 'delivery' && (
+                        {typeof deliveryDistanceKm === 'number' && deliveryDistanceKm > 0 && deliveryMethod === 'delivery' && (
                           <span className="text-[10px] text-slate-500 font-normal">
                             (~{deliveryDistanceKm} km)
                           </span>
@@ -775,7 +776,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                           </span>
                         ) : deliveryFee === 0 ? (
                           <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded text-[11px]">
-                            FREE (Within 10 km • Order ≥ KES 1,500)
+                            FREE (Order ≥ KES {(shippingSettings?.freeShippingThreshold || 1500).toLocaleString()})
                           </span>
                         ) : (
                           <span className="font-semibold text-slate-900">{formatCurrency(deliveryFee)}</span>
@@ -886,16 +887,16 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                   <Truck className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
                   <div className="space-y-0.5 text-xs">
                     <p className="font-bold text-teal-950">
-                      Cyden Dispatch Policy (Rupa Godowns, Eldoret):
+                      Cyden Dispatch Policy ({shippingSettings?.depotName || 'Rupa Godowns, Eldoret'}):
                     </p>
                     <p className="text-[11px] text-teal-800 leading-relaxed">
-                      • Orders <strong>≥ KSh 1,500</strong> within <strong>10 km</strong> from depot: <strong class="text-emerald-800 uppercase">100% Free Delivery</strong>.
+                      • Orders <strong>≥ KSh {(shippingSettings?.freeShippingThreshold || 1500).toLocaleString()}</strong> within <strong>{shippingSettings?.freeDeliveryRadiusKm || 10} km</strong> from depot: <strong className="text-emerald-800 uppercase">100% Free Delivery</strong>.
                       <br />
-                      • Orders &lt; KSh 1,500 within 10 km: Standard base fee of <strong>KSh 150</strong>.
+                      • Orders &lt; KSh {(shippingSettings?.freeShippingThreshold || 1500).toLocaleString()} within {shippingSettings?.freeDeliveryRadiusKm || 10} km: Standard base fee of <strong>KSh {shippingSettings?.baseDeliveryFee || 150}</strong>.
                       <br />
-                      • Beyond 10 km: Free/Base rate + <strong>KSh 30 per extra km</strong>.
+                      • Beyond {shippingSettings?.freeDeliveryRadiusKm || 10} km: Free/Base rate + <strong>KSh {shippingSettings?.perKmRateBeyondRadius || 30} per extra km</strong>.
                       <br />
-                      {deliveryDistanceKm !== null ? (
+                      {typeof deliveryDistanceKm === 'number' && deliveryDistanceKm > 0 ? (
                         <span className="font-semibold text-emerald-900 bg-emerald-100 px-1.5 py-0.5 rounded inline-block mt-1">
                           📍 Pinned Distance: {deliveryDistanceKm} km ({deliveryExplanation})
                         </span>
@@ -1099,7 +1100,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                 <div className="flex items-center justify-between text-slate-600">
                   <span className="flex items-center gap-1">
                     Delivery Fee
-                    {deliveryDistanceKm !== null && deliveryMethod === 'delivery' && (
+                    {typeof deliveryDistanceKm === 'number' && deliveryDistanceKm > 0 && deliveryMethod === 'delivery' && (
                       <span className="text-[10px] text-slate-500 font-normal">
                         (~{deliveryDistanceKm} km from Depot)
                       </span>
@@ -1112,7 +1113,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                       </span>
                     ) : deliveryFee === 0 ? (
                       <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded text-[11px]">
-                        FREE
+                        FREE (Order ≥ KES {(shippingSettings?.freeShippingThreshold || 1500).toLocaleString()})
                       </span>
                     ) : (
                       <span className="font-semibold text-slate-900">{formatCurrency(deliveryFee)}</span>
