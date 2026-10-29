@@ -24,6 +24,7 @@ import { CartProvider, useCart } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import AuthModal from './components/AuthModal';
 import MyOrdersModal from './components/MyOrdersModal';
+import MyAddressesModal from './components/MyAddressesModal';
 import { trackGTMPageView } from './utils/gtm';
 
 function CydenDistributorsApp() {
@@ -33,6 +34,7 @@ function CydenDistributorsApp() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isMyOrdersOpen, setIsMyOrdersOpen] = useState(false);
+  const [isMyAddressesOpen, setIsMyAddressesOpen] = useState(false);
 
   // Age Verification State
   const [isAgeVerified, setIsAgeVerified] = useState<boolean>(false);
@@ -232,6 +234,7 @@ function CydenDistributorsApp() {
           setIsAuthOpen(true);
         }}
         onOpenMyOrders={() => setIsMyOrdersOpen(true)}
+        onOpenMyAddresses={() => setIsMyAddressesOpen(true)}
       />
 
       {/* 3. Main Page Body */}
@@ -282,6 +285,12 @@ function CydenDistributorsApp() {
         isOpen={isMyOrdersOpen}
         onClose={() => setIsMyOrdersOpen(false)}
         onOpenCatalogue={() => navigateTo('/catalogue')}
+      />
+
+      {/* 6e. Customer Delivery Locations Map Modal */}
+      <MyAddressesModal
+        isOpen={isMyAddressesOpen}
+        onClose={() => setIsMyAddressesOpen(false)}
       />
 
       {/* 7. Interactive Toast Notification when items added */}

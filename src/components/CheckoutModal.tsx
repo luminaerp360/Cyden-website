@@ -49,7 +49,8 @@ import {
 import { createOrder } from '../services/ordersService';
 import { saveOrderToStore } from '../services/orderStore';
 import { resolveBackendProductId } from '../services/productsService';
-import { Order, OrderItem, CustomerType, DeliveryMethod, MpesaStatus } from '../types';
+import { Order, OrderItem, CustomerType, DeliveryMethod, MpesaStatus, CustomerAddress } from '../types';
+import { DeliveryAddressSelector } from './DeliveryAddressSelector';
 
 interface CheckoutModalProps {
   onOpenAuth?: (mode?: 'login' | 'signup') => void;
@@ -108,6 +109,23 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
   const [isLocating, setIsLocating] = useState(false);
   const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+
+  const handleSelectSavedAddress = (addr: CustomerAddress) => {
+    setSelectedAddressId(addr._id || addr.id || '');
+    if (addr.street) {
+      setStreetAddress(addr.street);
+    }
+    if (addr.contactPhone && !phone) {
+      setPhone(addr.contactPhone);
+    }
+    if (addr.lat && addr.lng) {
+      setGpsLocation({ lat: addr.lat, lng: addr.lng });
+    }
+    if (addr.deliveryInstructions && !deliveryNotes) {
+      setDeliveryNotes(addr.deliveryInstructions);
+    }
+  };
 
   // M-Pesa STK Push state
   const [mpesaPhone, setMpesaPhone] = useState('');
@@ -882,10 +900,16 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
               {/* Location Details (for Door Delivery) */}
               {deliveryMethod === 'delivery' ? (
                 <div className="space-y-3.5 pt-2 border-t border-slate-100">
-                  <div className="flex items-center justify-between">
+                  {/* Saved Delivery Locations with Interactive Map Pinning */}
+                  <DeliveryAddressSelector
+                    selectedAddressId={selectedAddressId}
+                    onSelectAddress={handleSelectSavedAddress}
+                  />
+
+                  <div className="flex items-center justify-between pt-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-[#E8582F]" />
-                      <span>Delivery Location</span>
+                      <span>Delivery Location Details</span>
                     </label>
 
                     {/* Geolocation Button */}
