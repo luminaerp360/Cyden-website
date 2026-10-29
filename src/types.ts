@@ -53,6 +53,25 @@ export interface CartItem {
 export type CustomerType = 'retail' | 'wholesale' | 'b2b' | 'personal';
 export type DeliveryMethod = 'delivery' | 'pickup';
 
+export interface CustomerAddress {
+  _id?: string;
+  id?: string;
+  label?: string; // e.g. "Home", "Club / Outlet", "Warehouse", "Office"
+  street?: string; // Street name / Area
+  city?: string;
+  state?: string;
+  country?: string;
+  zipCode?: string;
+  landmark?: string; // Nearby landmark (e.g. "Opposite Shell, Black Gate")
+  building?: string; // Building / Stall / Floor number
+  contactPhone?: string; // Specific recipient phone
+  deliveryInstructions?: string; // Notes for rider/driver
+  lat?: number;
+  lng?: number;
+  googleMapsUrl?: string;
+  isDefault?: boolean;
+}
+
 export interface DeliveryDetails {
   customerType: CustomerType;
   fullName: string;
@@ -63,7 +82,12 @@ export interface DeliveryDetails {
   county: string;
   townArea: string;
   streetAddress: string;
+  landmark?: string;
+  building?: string;
+  savedAddressId?: string;
+  addressLabel?: string;
   gpsCoordinates?: { lat: number; lng: number; accuracy?: number };
+  googleMapsUrl?: string;
   deliveryNotes?: string;
 }
 

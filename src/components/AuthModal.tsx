@@ -16,6 +16,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -30,7 +31,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   initialMode = 'login',
 }) => {
-  const { login, signup } = useAuth();
+  const { login, signup, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,6 +41,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
@@ -58,6 +60,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setEmail('admin@cydendistributors.co.ke');
     setPassword('Cyden@Admin2026!');
     setError('');
+  };
+
+  const handleGoogleSuccess = async (idToken: string) => {
+    setError('');
+    setIsGoogleSubmitting(true);
+    try {
+      await loginWithGoogle(idToken);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google authentication failed.');
+    } finally {
+      setIsGoogleSubmitting(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,7 +152,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Mode Tabs */}
-        <div className="grid grid-cols-2 gap-1 bg-neutral-100 p-1 rounded-xl mb-5">
+        <div className="grid grid-cols-2 gap-1 bg-neutral-100 p-1 rounded-xl mb-4">
           <button
             type="button"
             onClick={() => switchMode('login')}
@@ -162,6 +177,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <UserPlus className="w-3.5 h-3.5" />
             <span>Register</span>
           </button>
+        </div>
+
+        {/* Google Authentication Button */}
+        <div className="mb-4">
+          <GoogleSignInButton
+            text={mode === 'signup' ? 'signup_with' : 'signin_with'}
+            onSuccess={handleGoogleSuccess}
+            onError={(msg) => setError(msg)}
+            disabled={isSubmitting || isGoogleSubmitting}
+          />
+          {isGoogleSubmitting && (
+            <p className="text-center text-[11px] text-[#3AA88C] font-semibold mt-1.5 animate-pulse">
+              Authenticating with Google...
+            </p>
+          )}
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-neutral-200" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-3 text-neutral-400 font-medium uppercase text-[10px] tracking-wider">
+                Or continue with email
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Error Alert */}

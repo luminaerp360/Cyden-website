@@ -38,6 +38,10 @@ export interface RefreshPayload {
   refreshToken: string;
 }
 
+export interface GoogleAuthPayload {
+  idToken: string;
+}
+
 export interface AuthResult {
   accessToken: string;
   refreshToken: string;
@@ -166,6 +170,16 @@ export async function signupUser(payload: SignupPayload): Promise<AuthResult> {
 
 export async function loginUser(payload: LoginPayload): Promise<AuthResult> {
   const data = await apiRequest(API_ENDPOINTS.login, {
+    method: 'POST',
+    body: payload,
+  });
+  const result = extractAuthResult(data);
+  storeSession(result);
+  return result;
+}
+
+export async function googleLoginUser(payload: GoogleAuthPayload): Promise<AuthResult> {
+  const data = await apiRequest(API_ENDPOINTS.google, {
     method: 'POST',
     body: payload,
   });
