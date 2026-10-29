@@ -11,7 +11,23 @@ export interface CreateOrderItem {
 export interface CreateOrderPayload {
   items: CreateOrderItem[];
   shippingAddress?: string;
-  paymentMethod: 'mpesa' | 'cash' | 'card';
+  paymentMethod: 'mpesa' | 'cash' | 'card' | string;
+  paymentStatus?: 'pending' | 'paid' | 'failed' | string;
+  status?: 'pending' | 'confirmed' | string;
+  mpesaReceiptNumber?: string;
+  customer?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    siteAddress?: string;
+    notes?: string;
+  };
+  fulfillment?: 'delivery' | 'pickup' | string;
+  deliveryFee?: number;
+  deliveryDistanceKm?: number;
+  deliveryCoordinates?: { lat: number; lng: number };
+  subtotal?: number;
+  totalAmount?: number;
 }
 
 export interface OrderItemResponse {
@@ -31,6 +47,9 @@ export interface ApiOrder {
   paymentMethod: string;
   paymentStatus: string;
   trackingNumber?: string;
+  mpesaReceiptNumber?: string;
+  fulfillment?: string;
+  deliveryFee?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +68,18 @@ export async function createOrder(
   return apiRequest<ApiOrder>(API_ENDPOINTS.orders, {
     method: 'POST',
     body,
+    token,
+  });
+}
+
+export async function updateOrderPayment(
+  orderId: string,
+  payload: { paymentStatus: string; mpesaReceiptNumber?: string; status?: string },
+  token?: string | null
+): Promise<ApiOrder> {
+  return apiRequest<ApiOrder>(`${API_ENDPOINTS.orders}/${encodeURIComponent(orderId)}/payment`, {
+    method: 'PUT',
+    body: payload,
     token,
   });
 }

@@ -46,7 +46,7 @@ import {
   findMpesaTransaction,
   normalizeMpesaPhone,
 } from '../services/mpesaService';
-import { createOrder } from '../services/ordersService';
+import { createOrder, updateOrderPayment } from '../services/ordersService';
 import { saveOrderToStore } from '../services/orderStore';
 import { resolveBackendProductId } from '../services/productsService';
 import { Order, OrderItem, CustomerType, DeliveryMethod, MpesaStatus, CustomerAddress } from '../types';
@@ -152,6 +152,8 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
   const [mpesaReceipt, setMpesaReceipt] = useState('');
   const [stkError, setStkError] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [createdBackendOrderId, setCreatedBackendOrderId] = useState<string>('');
+  const createdBackendOrderIdRef = React.useRef<string>('');
 
   // Sync phone with mpesaPhone automatically so customer only enters it once
   useEffect(() => {
@@ -267,15 +269,34 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
     }
 
     // 2. Record the order on the e-commerce backend API (for both logged-in and guest users)
+    let createdBackendId = '';
     try {
-      await createOrder(
+      const backendOrder = await createOrder(
         {
           items: orderItems,
           shippingAddress: formattedShippingAddress,
           paymentMethod: 'mpesa',
+          paymentStatus: 'pending',
+          status: 'pending',
+          subtotal,
+          totalAmount: Math.round(grandTotal),
+          deliveryFee,
+          deliveryDistanceKm: deliveryDistanceKm || undefined,
+          deliveryCoordinates: gpsLocation ? { lat: gpsLocation.lat, lng: gpsLocation.lng } : undefined,
+          fulfillment: deliveryMethod,
+          customer: {
+            name: fullName,
+            email: email || undefined,
+            phone: phoneValid.formatted || phone,
+          },
         },
         token || undefined
       );
+      if (backendOrder?.id || (backendOrder as any)?._id) {
+        createdBackendId = backendOrder.id || (backendOrder as any)._id;
+        createdBackendOrderIdRef.current = createdBackendId;
+        setCreatedBackendOrderId(createdBackendId);
+      }
     } catch (orderErr) {
       console.warn('Backend order recording notice:', orderErr);
     }
@@ -323,7 +344,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       onAttempt: (attempt) => setPollAttempt(attempt),
     }).then((pollResult) => {
       if (pollResult && pollResult.success) {
-        handleConfirmPayment(pollResult.receiptNumber || checkoutId);
+        handleConfirmPayment(pollResult.receiptNumber || checkoutId, createdBackendId);
       } else {
         setMpesaStatus('failed');
         setStkError(pollResult?.message || 'Payment request was cancelled or declined on your phone.');
@@ -382,7 +403,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
   };
 
   // Complete Order (Instant approval or manual verification)
-  const handleConfirmPayment = async (receiptOverride?: string) => {
+  const handleConfirmPayment = async (receiptOverride?: string, backendOrderIdOverride?: string) => {
     setMpesaStatus('initiating');
     const phoneValid = formatKenyanPhone(mpesaPhone || phone);
 
@@ -395,6 +416,77 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
         deliveryMethod === 'delivery'
           ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
           : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
+
+      // Update order on backend to paid status with transaction code
+      const backendId = backendOrderIdOverride || createdBackendOrderIdRef.current || createdBackendOrderId;
+      const token = getToken();
+      if (backendId) {
+        try {
+          await updateOrderPayment(
+            backendId,
+            {
+              paymentStatus: 'paid',
+              status: 'confirmed',
+              mpesaReceiptNumber: generatedReceipt,
+            },
+            token || undefined
+          );
+        } catch (updateErr) {
+          console.warn('Backend order payment update notice:', updateErr);
+        }
+      } else {
+        // Fallback: create fresh order directly marked as paid
+        try {
+          let resolvedItems = [];
+          try {
+            resolvedItems = await Promise.all(
+              cart.map(async (it) => ({
+                productId: await resolveBackendProductId(it.product.id, it.product.name),
+                quantity: it.quantity,
+                price: it.product.price,
+                notes: it.product.name,
+              }))
+            );
+          } catch {
+            resolvedItems = cart.map((it) => ({
+              productId: it.product.id,
+              quantity: it.quantity,
+              price: it.product.price,
+              notes: it.product.name,
+            }));
+          }
+
+          const created = await createOrder(
+            {
+              items: resolvedItems,
+              shippingAddress,
+              paymentMethod: 'mpesa',
+              paymentStatus: 'paid',
+              status: 'confirmed',
+              mpesaReceiptNumber: generatedReceipt,
+              subtotal,
+              totalAmount: Math.round(grandTotal),
+              deliveryFee,
+              deliveryDistanceKm: deliveryDistanceKm || undefined,
+              deliveryCoordinates: gpsLocation ? { lat: gpsLocation.lat, lng: gpsLocation.lng } : undefined,
+              fulfillment: deliveryMethod,
+              customer: {
+                name: fullName,
+                email: email || undefined,
+                phone: phoneValid.formatted || phone,
+              },
+            },
+            token || undefined
+          );
+          if (created?.id || (created as any)?._id) {
+            const newId = created.id || (created as any)._id;
+            createdBackendOrderIdRef.current = newId;
+            setCreatedBackendOrderId(newId);
+          }
+        } catch (createErr) {
+          console.warn('Backend fallback order creation notice:', createErr);
+        }
+      }
 
       // Create confirmed Order
       const newOrder: Order = {
@@ -495,6 +587,19 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
           items: orderItems,
           shippingAddress: formattedShippingAddress,
           paymentMethod: 'cash',
+          paymentStatus: 'pending',
+          status: 'pending',
+          subtotal,
+          totalAmount: Math.round(grandTotal),
+          deliveryFee,
+          deliveryDistanceKm: deliveryDistanceKm || undefined,
+          deliveryCoordinates: gpsLocation ? { lat: gpsLocation.lat, lng: gpsLocation.lng } : undefined,
+          fulfillment: deliveryMethod,
+          customer: {
+            name: fullName,
+            email: email || undefined,
+            phone: phoneValid.formatted || phone,
+          },
         },
         token || undefined
       );
