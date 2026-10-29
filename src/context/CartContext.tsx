@@ -4,6 +4,35 @@ import { CartItem, Product, DeliveryDetails, Order, CustomerType, DeliveryMethod
 const CART_STORAGE_KEY = 'cyden_cart_items_v2';
 const ORDERS_STORAGE_KEY = 'cyden_customer_orders_v2';
 
+
+// Cyden Eldoret Dispatch Depot (Rupa Godowns, Eldoret)
+export const CYDEN_DEPOT = {
+  name: 'Cyden Central Warehouse (Rupa Godowns, Eldoret)',
+  lat: 0.5150,
+  lng: 35.2883,
+  freeThreshold: 1500, // KSh 1,500
+  freeRadiusKm: 10, // 10 km free zone
+  baseFee: 150, // Standard base fee if order < 1500
+  perKmRate: 30, // KSh 30 per extra km beyond 10 km
+  maxDeliveryRadiusKm: 50,
+};
+
+export function calculateDrivingDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const straightDist = R * c;
+  // Road network factor (~1.25x)
+  return Math.round(straightDist * 1.25 * 10) / 10;
+}
+
 export const POPULAR_DELIVERY_AREAS = [
   'Town Route (Town, Kimumu, Chepkanga, Munyaka, Sogomo, Marura)',
   'Langas Route (Pioneer, Elgon View, Langas, Kapseret)',
