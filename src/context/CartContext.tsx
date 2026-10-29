@@ -1,23 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { CartItem, Product, DeliveryDetails, Order, CustomerType, DeliveryMethod } from '../types';
+import {
+  fetchLiveShippingSettings,
+  getCachedShippingSettings,
+  ShippingSettings,
+  DEFAULT_SHIPPING_SETTINGS,
+} from '../services/settingsService';
 
 const CART_STORAGE_KEY = 'cyden_cart_items_v2';
 const ORDERS_STORAGE_KEY = 'cyden_customer_orders_v2';
 
-
-// Cyden Eldoret Dispatch Depot (Rupa Godowns, Eldoret)
-export const CYDEN_DEPOT = {
-  name: 'Cyden Central Warehouse (Rupa Godowns, Eldoret)',
-  lat: 0.5150,
-  lng: 35.2883,
-  freeThreshold: 1500, // KSh 1,500
-  freeRadiusKm: 10, // 10 km free zone
-  baseFee: 150, // Standard base fee if order < 1500
-  perKmRate: 30, // KSh 30 per extra km beyond 10 km
-  maxDeliveryRadiusKm: 50,
-};
-
-export function calculateDrivingDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function calculateDrivingDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
   const R = 6371; // Earth radius in km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -59,6 +57,10 @@ interface CartContextType {
   totalItems: number;
   subtotal: number;
   deliveryFee: number;
+  deliveryDistanceKm: number | null;
+  deliveryExplanation: string;
+  isFreeDelivery: boolean;
+  shippingSettings: ShippingSettings;
   grandTotal: number;
   deliveryDetails: DeliveryDetails;
   setDeliveryDetails: React.Dispatch<React.SetStateAction<DeliveryDetails>>;
@@ -109,6 +111,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [lastAddedToast, setLastAddedToast] = useState<{ product: Product; quantity: number } | null>(null);
 
+  // Live Shipping Settings from backend (with instant cached fallback)
+  const [shippingSettings, setShippingSettings] = useState<ShippingSettings>(getCachedShippingSettings);
+
+  useEffect(() => {
+    fetchLiveShippingSettings().then((live) => {
+      setShippingSettings(live);
+    });
+  }, []);
+
   const [recentOrders, setRecentOrders] = useState<Order[]>(() => {
     try {
       const saved = localStorage.getItem(ORDERS_STORAGE_KEY);
@@ -123,50 +134,52 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
     } catch (e) {
-      console.warn('Failed to save cart to localStorage:', e);
+      console.warn('Could not save cart to storage:', e);
     }
   }, [cart]);
 
-  // Save recent orders
+  // Save orders to localStorage
   const saveCompletedOrder = useCallback((order: Order) => {
     setRecentOrders((prev) => {
-      const updated = [order, ...prev.filter((o) => o.order_id !== order.order_id)].slice(0, 15);
+      const updated = [order, ...prev.filter((o) => o.id !== order.id)].slice(0, 50);
       try {
         localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
       } catch (e) {
-        console.warn('Failed to save order to localStorage:', e);
+        console.warn('Could not save order history:', e);
       }
       return updated;
     });
   }, []);
 
+  // Cart operations
   const addToCart = useCallback((product: Product, quantity = 1) => {
+    if (quantity <= 0) return;
     setCart((prev) => {
       const existingIndex = prev.findIndex((item) => item.product.id === product.id);
       if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + quantity,
+        const next = [...prev];
+        next[existingIndex] = {
+          ...next[existingIndex],
+          quantity: next[existingIndex].quantity + quantity,
         };
-        return updated;
-      } else {
-        return [...prev, { product, quantity }];
+        return next;
       }
+      return [...prev, { product, quantity }];
     });
 
     setLastAddedToast({ product, quantity });
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
-    setCart((prev) => {
-      if (quantity <= 0) {
-        return prev.filter((item) => item.product.id !== productId);
-      }
-      return prev.map((item) =>
+    if (quantity <= 0) {
+      setCart((prev) => prev.filter((item) => item.product.id !== productId));
+      return;
+    }
+    setCart((prev) =>
+      prev.map((item) =>
         item.product.id === productId ? { ...item, quantity } : item
-      );
-    });
+      )
+    );
   }, []);
 
   const removeFromCart = useCallback((productId: string) => {
@@ -238,16 +251,110 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   }, [cart]);
 
-  // Delivery fee logic:
-  // - Pick up at depot: Free (KSH 0)
-  // - Delivery fee is waived if subtotal >= 4000 KSH
-  // - Otherwise flat KSH 150 within Eldoret / local radius
-  const deliveryFee = useMemo(() => {
-    if (cart.length === 0) return 0;
-    if (deliveryDetails.deliveryMethod === 'pickup') return 0;
-    if (subtotal >= 4000) return 0;
-    return 150;
-  }, [cart.length, deliveryDetails.deliveryMethod, subtotal]);
+  // Delivery Fee Calculation Engine based on dynamic Shipping Settings:
+  // - Pickup at depot: Always FREE (0)
+  // - If subtotal >= freeShippingThreshold within freeDeliveryRadiusKm (10 km): 100% FREE
+  // - If subtotal < freeShippingThreshold within 10 km: baseDeliveryFee (KES 150)
+  // - Beyond freeDeliveryRadiusKm:
+  //     - If subtotal >= freeShippingThreshold: (distance - 10 km) * perKmRate
+  //     - If subtotal < freeShippingThreshold: baseDeliveryFee + (distance - 10 km) * perKmRate
+  // - Fallback when coordinates are not yet pinned (e.g. Step 1):
+  //     - If subtotal >= freeShippingThreshold: FREE (0)
+  //     - If subtotal < freeShippingThreshold: baseDeliveryFee (KES 150)
+  const deliveryCalculation = useMemo(() => {
+    if (cart.length === 0) {
+      return { fee: 0, distance: null, explanation: 'Cart is empty', isFree: true };
+    }
+
+    if (deliveryDetails.deliveryMethod === 'pickup') {
+      return {
+        fee: 0,
+        distance: 0,
+        explanation: 'Self-pickup at Rupa Godowns / Iten Counter (Free)',
+        isFree: true,
+      };
+    }
+
+    const threshold = Number(shippingSettings.freeShippingThreshold) || 1500;
+    const radius = Number(shippingSettings.freeDeliveryRadiusKm) || 10;
+    const baseFee = Number(shippingSettings.baseDeliveryFee) || 150;
+    const perKmRate = Number(shippingSettings.perKmRateBeyondRadius) || 30;
+    const depotLat = Number(shippingSettings.depotLat) || 0.5150;
+    const depotLng = Number(shippingSettings.depotLng) || 35.2883;
+
+    const coords = deliveryDetails.gpsCoordinates;
+    if (coords && typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+      const distance = calculateDrivingDistanceKm(depotLat, depotLng, coords.lat, coords.lng);
+      const isWithinFreeRadius = distance <= radius;
+      const qualifiesForFreeAmount = subtotal >= threshold;
+
+      if (isWithinFreeRadius) {
+        if (qualifiesForFreeAmount) {
+          return {
+            fee: 0,
+            distance,
+            explanation: `Free Delivery (Within ${distance} km • Order over KSh ${threshold.toLocaleString()})`,
+            isFree: true,
+          };
+        } else {
+          return {
+            fee: baseFee,
+            distance,
+            explanation: `Base Fee KSh ${baseFee} (${distance} km from depot • Add KSh ${(threshold - subtotal).toLocaleString()} for free delivery)`,
+            isFree: false,
+          };
+        }
+      } else {
+        const extraKm = Math.ceil(distance - radius);
+        const distanceSurcharge = extraKm * perKmRate;
+
+        if (qualifiesForFreeAmount) {
+          return {
+            fee: distanceSurcharge,
+            distance,
+            explanation: `KSh ${distanceSurcharge} (${distance} km: First ${radius} km FREE + ${extraKm} km extra @ KSh ${perKmRate}/km)`,
+            isFree: false,
+          };
+        } else {
+          const totalFee = baseFee + distanceSurcharge;
+          return {
+            fee: totalFee,
+            distance,
+            explanation: `KSh ${totalFee} (${distance} km: Base KSh ${baseFee} + ${extraKm} km extra @ KSh ${perKmRate}/km)`,
+            isFree: false,
+          };
+        }
+      }
+    }
+
+    // Fallback when no GPS pin is provided yet (e.g. Step 1 Cart Review)
+    if (subtotal >= threshold) {
+      return {
+        fee: 0,
+        distance: null,
+        explanation: `Free Delivery (Order over KSh ${threshold.toLocaleString()} within local Eldoret radius)`,
+        isFree: true,
+      };
+    }
+
+    return {
+      fee: baseFee,
+      distance: null,
+      explanation: `Standard Delivery Fee (KSh ${baseFee})`,
+      isFree: false,
+    };
+  }, [
+    cart.length,
+    deliveryDetails.deliveryMethod,
+    deliveryDetails.gpsCoordinates,
+    subtotal,
+    shippingSettings,
+  ]);
+
+  const deliveryFee = deliveryCalculation.fee;
+  const deliveryDistanceKm = deliveryCalculation.distance;
+  const deliveryExplanation = deliveryCalculation.explanation;
+  const isFreeDelivery = deliveryCalculation.isFree;
 
   const grandTotal = useMemo(() => {
     return subtotal + deliveryFee;
@@ -265,6 +372,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         totalItems,
         subtotal,
         deliveryFee,
+        deliveryDistanceKm,
+        deliveryExplanation,
+        isFreeDelivery,
+        shippingSettings,
         grandTotal,
         deliveryDetails,
         setDeliveryDetails,
