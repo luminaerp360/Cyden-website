@@ -67,6 +67,9 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
     clearCart,
     subtotal,
     deliveryFee,
+    deliveryDistanceKm,
+    deliveryExplanation,
+    isFreeDelivery,
     grandTotal,
     totalItems,
     deliveryDetails,
@@ -79,6 +82,15 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
 
   // Individual customer checkout only
   const customerType: CustomerType = 'retail';
+
+  // Sync deliveryMethod and gpsLocation to CartContext for dynamic fee calculation
+  useEffect(() => {
+    setDeliveryDetails((prev) => ({
+      ...prev,
+      deliveryMethod,
+      gpsCoordinates: gpsLocation || undefined,
+    }));
+  }, [deliveryMethod, gpsLocation, setDeliveryDetails]);
 
   // Pre-fill user profile if logged in
   useEffect(() => {
@@ -747,17 +759,33 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                       <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
                     </div>
                     <div className="flex items-center justify-between text-slate-600">
-                      <span>Delivery Fee</span>
+                      <span className="flex items-center gap-1">
+                        Delivery Fee
+                        {deliveryDistanceKm !== null && deliveryMethod === 'delivery' && (
+                          <span className="text-[10px] text-slate-500 font-normal">
+                            (~{deliveryDistanceKm} km)
+                          </span>
+                        )}
+                      </span>
                       <span>
-                        {deliveryFee === 0 ? (
+                        {deliveryMethod === 'pickup' ? (
                           <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded text-[11px]">
-                            FREE (Orders &gt; KES 4,000)
+                            FREE (Depot Pickup)
+                          </span>
+                        ) : deliveryFee === 0 ? (
+                          <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded text-[11px]">
+                            FREE (Within 10 km • Order ≥ KES 1,500)
                           </span>
                         ) : (
                           <span className="font-semibold text-slate-900">{formatCurrency(deliveryFee)}</span>
                         )}
                       </span>
                     </div>
+                    {deliveryExplanation && (
+                      <p className="text-[11px] text-slate-500 italic">
+                        💡 {deliveryExplanation}
+                      </p>
+                    )}
                     <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-sm font-black text-slate-900">
                       <span>Total Amount</span>
                       <span className="text-base font-black text-[#1B3E6F]">{formatCurrency(grandTotal)}</span>
@@ -850,6 +878,35 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                   </button>
                 </div>
               </div>
+
+              {/* Cyden Delivery Policy Explainer Banner */}
+              {deliveryMethod === 'delivery' && (
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 text-xs text-teal-900 flex items-start gap-2.5">
+                  <Truck className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-0.5 text-xs">
+                    <p className="font-bold text-teal-950">
+                      Cyden Dispatch Policy (Rupa Godowns, Eldoret):
+                    </p>
+                    <p className="text-[11px] text-teal-800 leading-relaxed">
+                      • Orders <strong>≥ KSh 1,500</strong> within <strong>10 km</strong> from depot: <strong class="text-emerald-800 uppercase">100% Free Delivery</strong>.
+                      <br />
+                      • Orders &lt; KSh 1,500 within 10 km: Standard base fee of <strong>KSh 150</strong>.
+                      <br />
+                      • Beyond 10 km: Free/Base rate + <strong>KSh 30 per extra km</strong>.
+                      <br />
+                      {deliveryDistanceKm !== null ? (
+                        <span className="font-semibold text-emerald-900 bg-emerald-100 px-1.5 py-0.5 rounded inline-block mt-1">
+                          📍 Pinned Distance: {deliveryDistanceKm} km ({deliveryExplanation})
+                        </span>
+                      ) : (
+                        <span className="italic text-teal-700">
+                          Select a saved address or pin on the map below for exact distance calculation.
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Customer Contact Details */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1031,6 +1088,46 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
                   </p>
                 </div>
               )}
+
+              {/* Step 2 Live Order Breakdown */}
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between text-slate-600">
+                  <span>Subtotal ({totalItems} items)</span>
+                  <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex items-center justify-between text-slate-600">
+                  <span className="flex items-center gap-1">
+                    Delivery Fee
+                    {deliveryDistanceKm !== null && deliveryMethod === 'delivery' && (
+                      <span className="text-[10px] text-slate-500 font-normal">
+                        (~{deliveryDistanceKm} km from Depot)
+                      </span>
+                    )}
+                  </span>
+                  <span>
+                    {deliveryMethod === 'pickup' ? (
+                      <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded text-[11px]">
+                        FREE (Depot Pickup)
+                      </span>
+                    ) : deliveryFee === 0 ? (
+                      <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded text-[11px]">
+                        FREE
+                      </span>
+                    ) : (
+                      <span className="font-semibold text-slate-900">{formatCurrency(deliveryFee)}</span>
+                    )}
+                  </span>
+                </div>
+                {deliveryExplanation && (
+                  <p className="text-[11px] text-slate-500 italic pt-0.5">
+                    💡 {deliveryExplanation}
+                  </p>
+                )}
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-sm font-black text-slate-900">
+                  <span>Total Payable</span>
+                  <span className="text-base font-black text-[#1B3E6F]">{formatCurrency(grandTotal)}</span>
+                </div>
+              </div>
 
               {/* Navigation Actions */}
               <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-3 border-t border-slate-200">
