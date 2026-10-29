@@ -268,40 +268,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       }));
     }
 
-    // 2. Record the order on the e-commerce backend API (for both logged-in and guest users)
-    let createdBackendId = '';
-    try {
-      const backendOrder = await createOrder(
-        {
-          items: orderItems,
-          shippingAddress: formattedShippingAddress,
-          paymentMethod: 'mpesa',
-          paymentStatus: 'pending',
-          status: 'pending',
-          subtotal,
-          totalAmount: Math.round(grandTotal),
-          deliveryFee,
-          deliveryDistanceKm: deliveryDistanceKm || undefined,
-          deliveryCoordinates: gpsLocation ? { lat: gpsLocation.lat, lng: gpsLocation.lng } : undefined,
-          fulfillment: deliveryMethod,
-          customer: {
-            name: fullName,
-            email: email || undefined,
-            phone: phoneValid.formatted || phone,
-          },
-        },
-        token || undefined
-      );
-      if (backendOrder?.id || (backendOrder as any)?._id) {
-        createdBackendId = backendOrder.id || (backendOrder as any)._id;
-        createdBackendOrderIdRef.current = createdBackendId;
-        setCreatedBackendOrderId(createdBackendId);
-      }
-    } catch (orderErr) {
-      console.warn('Backend order recording notice:', orderErr);
-    }
-
-    // 3. Initiate live M-Pesa STK push via backend API
+    // 2. Initiate live M-Pesa STK push via backend API
     let checkoutId = '';
     try {
       const response = await initiateLiveStkPush(
@@ -344,7 +311,7 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       onAttempt: (attempt) => setPollAttempt(attempt),
     }).then((pollResult) => {
       if (pollResult && pollResult.success) {
-        handleConfirmPayment(pollResult.receiptNumber || checkoutId, createdBackendId);
+        handleConfirmPayment(pollResult.receiptNumber || checkoutId);
       } else {
         setMpesaStatus('failed');
         setStkError(pollResult?.message || 'Payment request was cancelled or declined on your phone.');
@@ -581,11 +548,16 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       }));
     }
 
+    const cleanShippingAddress =
+      deliveryMethod === 'delivery'
+        ? `${townArea === 'Other (Specify Below)' ? customArea : townArea}, ${streetAddress}, ${county}`
+        : 'Warehouse Self-Pickup (Rupa Godowns, Eldoret)';
+
     try {
       await createOrder(
         {
           items: orderItems,
-          shippingAddress: formattedShippingAddress,
+          shippingAddress: cleanShippingAddress,
           paymentMethod: 'cash',
           paymentStatus: 'pending',
           status: 'pending',
