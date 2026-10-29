@@ -83,6 +83,23 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
   // Individual customer checkout only
   const customerType: CustomerType = 'retail';
 
+  // Customer & Delivery Form State
+  const [fullName, setFullName] = useState(deliveryDetails.fullName || '');
+  const [phone, setPhone] = useState(deliveryDetails.phone || '');
+  const [email, setEmail] = useState(deliveryDetails.email || '');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(deliveryDetails.deliveryMethod || 'delivery');
+  const [county, setCounty] = useState(deliveryDetails.county || 'Uasin Gishu');
+  const [townArea, setTownArea] = useState(deliveryDetails.townArea || 'Eldoret CBD / Town Centre');
+  const [customArea, setCustomArea] = useState('');
+  const [streetAddress, setStreetAddress] = useState(deliveryDetails.streetAddress || '');
+  const [deliveryNotes, setDeliveryNotes] = useState(deliveryDetails.deliveryNotes || '');
+
+  // GPS Geolocation state
+  const [isLocating, setIsLocating] = useState(false);
+  const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+
   // Sync deliveryMethod and gpsLocation to CartContext for dynamic fee calculation
   useEffect(() => {
     setDeliveryDetails((prev) => ({
@@ -106,22 +123,6 @@ export default function CheckoutModal({ onOpenAuth }: CheckoutModalProps = {}) {
       }
     }
   }, [user]);
-
-  const [fullName, setFullName] = useState(deliveryDetails.fullName || '');
-  const [phone, setPhone] = useState(deliveryDetails.phone || '');
-  const [email, setEmail] = useState(deliveryDetails.email || '');
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(deliveryDetails.deliveryMethod || 'delivery');
-  const [county, setCounty] = useState(deliveryDetails.county || 'Uasin Gishu');
-  const [townArea, setTownArea] = useState(deliveryDetails.townArea || 'Eldoret CBD / Town Centre');
-  const [customArea, setCustomArea] = useState('');
-  const [streetAddress, setStreetAddress] = useState(deliveryDetails.streetAddress || '');
-  const [deliveryNotes, setDeliveryNotes] = useState(deliveryDetails.deliveryNotes || '');
-
-  // GPS Geolocation state
-  const [isLocating, setIsLocating] = useState(false);
-  const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null);
-  const [gpsError, setGpsError] = useState<string | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 
   const handleSelectSavedAddress = (addr: CustomerAddress) => {
     setSelectedAddressId(addr._id || addr.id || '');
