@@ -141,7 +141,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Save orders to localStorage
   const saveCompletedOrder = useCallback((order: Order) => {
     setRecentOrders((prev) => {
-      const updated = [order, ...prev.filter((o) => o.id !== order.id)].slice(0, 50);
+      const updated = [order, ...prev.filter((o) => (o.order_id || o.id) !== (order.order_id || order.id))].slice(0, 50);
       try {
         localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
       } catch (e) {

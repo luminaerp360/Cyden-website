@@ -112,6 +112,7 @@ export interface OrderItem {
 }
 
 export interface Order {
+  id?: string;
   order_id: string;
   source: 'thebar' | 'offline_request' | 'whatsapp' | 'web_cart';
   customer_type?: CustomerType;

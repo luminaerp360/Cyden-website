@@ -17,6 +17,7 @@ export interface CreateOrderPayload {
   mpesaReceiptNumber?: string;
   customer?: {
     fullName?: string;
+    name?: string;
     email?: string;
     phone?: string;
     siteAddress?: string;

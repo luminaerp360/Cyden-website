@@ -50,17 +50,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setError('');
   };
 
-  const handleQuickFillCustomer = () => {
-    setEmail('orders@cydendistributors.co.ke');
-    setPassword('Cyden@Customer2026!');
-    setError('');
-  };
-
-  const handleQuickFillAdmin = () => {
-    setEmail('admin@cydendistributors.co.ke');
-    setPassword('Cyden@Admin2026!');
-    setError('');
-  };
 
   const handleGoogleSuccess = async (idToken: string) => {
     setError('');
@@ -337,29 +326,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </form>
 
-        {/* Demo Fast-Fill helper */}
-        <div className="mt-5 pt-4 border-t border-neutral-100">
-          <div className="flex items-center justify-between text-[11px] text-neutral-400 mb-2">
-            <span>Quick Test Credentials:</span>
-            <span className="text-[10px] font-semibold text-[#3AA88C]">Tenant: cyden-distributors</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={handleQuickFillCustomer}
-              className="px-2.5 py-1.5 text-[11px] font-semibold text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors cursor-pointer text-left truncate"
-            >
-              Fill Customer Demo
-            </button>
-            <button
-              type="button"
-              onClick={handleQuickFillAdmin}
-              className="px-2.5 py-1.5 text-[11px] font-semibold text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors cursor-pointer text-left truncate"
-            >
-              Fill Admin Demo
-            </button>
-          </div>
-        </div>
       </motion.div>
     </div>
   );
