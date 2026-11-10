@@ -6,6 +6,11 @@ import {
   ChevronRight,
   Sparkles,
 } from 'lucide-react';
+import {
+  fetchLiveHeroSlides,
+  getCachedHeroSlides,
+  HeroSlideSetting,
+} from '../services/settingsService';
 
 export interface HeroSlide {
   id: string;
@@ -137,35 +142,90 @@ interface HeroBannerProps {
 }
 
 export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerProps) {
+  const [slides, setSlides] = useState<HeroSlide[]>(() => {
+    const cached = getCachedHeroSlides();
+    if (cached && cached.length > 0) {
+      return cached.map((c, i) => ({
+        id: c.id || `slide-${i}`,
+        tag: c.tag || '',
+        headlineLine1: c.headlineLine1 || '',
+        headlineLine2: c.headlineLine2 || '',
+        subtitle: c.subtitle || '',
+        packshot: c.packshot || '',
+        heroBg: c.heroBg || '/hero/tusker-hero.jpg',
+        category: c.category || 'Beer',
+        badgeTop: c.badgeTop || 'OFFER',
+        badgeBottom: c.badgeBottom || 'DEAL',
+        badgeColor: c.badgeColor || '#E8582F',
+        bgGradient: c.bgGradient || 'radial-gradient(ellipse at 30% 50%, rgba(245, 158, 11, 0.45) 0%, rgba(180, 83, 9, 0.28) 45%, rgba(18, 8, 2, 0.98) 85%), linear-gradient(135deg, #3D1906 0%, #200E03 50%, #0A1422 100%)',
+        curtainColor: c.curtainColor || 'rgba(255, 255, 255, 0.08)',
+        legalText: c.legalText || 'ENJOY RESPONSIBLY | T&C APPLY',
+      }));
+    }
+    return HERO_SLIDES;
+  });
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Preload all packshots & hero backgrounds on mount
+  // Fetch live hero slides from store settings
   useEffect(() => {
-    HERO_SLIDES.forEach((slide) => {
-      const img1 = new Image();
-      img1.src = slide.packshot;
-      const img2 = new Image();
-      img2.src = slide.heroBg;
+    fetchLiveHeroSlides().then((live) => {
+      if (live && live.length > 0) {
+        const mapped: HeroSlide[] = live.map((c, i) => ({
+          id: c.id || `slide-${i}`,
+          tag: c.tag || '',
+          headlineLine1: c.headlineLine1 || '',
+          headlineLine2: c.headlineLine2 || '',
+          subtitle: c.subtitle || '',
+          packshot: c.packshot || '',
+          heroBg: c.heroBg || '/hero/tusker-hero.jpg',
+          category: c.category || 'Beer',
+          badgeTop: c.badgeTop || 'OFFER',
+          badgeBottom: c.badgeBottom || 'DEAL',
+          badgeColor: c.badgeColor || '#E8582F',
+          bgGradient: c.bgGradient || 'radial-gradient(ellipse at 30% 50%, rgba(245, 158, 11, 0.45) 0%, rgba(180, 83, 9, 0.28) 45%, rgba(18, 8, 2, 0.98) 85%), linear-gradient(135deg, #3D1906 0%, #200E03 50%, #0A1422 100%)',
+          curtainColor: c.curtainColor || 'rgba(255, 255, 255, 0.08)',
+          legalText: c.legalText || 'ENJOY RESPONSIBLY | T&C APPLY',
+        }));
+        setSlides(mapped);
+      }
     });
   }, []);
 
+  // Preload all packshots & hero backgrounds on mount or slides change
+  useEffect(() => {
+    slides.forEach((slide) => {
+      if (slide.packshot) {
+        const img1 = new Image();
+        img1.src = slide.packshot;
+      }
+      if (slide.heroBg) {
+        const img2 = new Image();
+        img2.src = slide.heroBg;
+      }
+    });
+  }, [slides]);
+
   // Fast 3.5s rotation (changes every 3 to 4 seconds)
   useEffect(() => {
+    if (slides.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
     }, 3500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
   const handleNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setCurrentIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+    if (slides.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
   };
 
   const handlePrev = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setCurrentIndex((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+    if (slides.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
   return (
@@ -174,7 +234,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
       <div className="relative w-full h-[520px] sm:h-[580px] md:h-[630px] lg:h-[700px] xl:h-[740px] overflow-hidden bg-[#0A1626]">
         
         {/* Pre-mounted Slides with Smooth Cross-Fade */}
-        {HERO_SLIDES.map((slide, idx) => {
+        {slides.map((slide, idx) => {
           const isCurrent = idx === currentIndex;
           return (
             <div
@@ -314,7 +374,7 @@ export default function HeroBanner({ onNavigate, onOpenOrderModal }: HeroBannerP
 
         {/* Slide Indicators Dots at the Bottom */}
         <div className="absolute bottom-5 inset-x-0 z-20 flex items-center justify-center gap-2.5 pointer-events-auto">
-          {HERO_SLIDES.map((slide, idx) => (
+          {slides.map((slide, idx) => (
             <button
               key={slide.id}
               type="button"

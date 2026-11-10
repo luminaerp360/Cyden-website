@@ -15,12 +15,33 @@ export interface ShippingSettings {
   depotAddress?: string;
 }
 
+export interface HeroSlideSetting {
+  id?: string;
+  tag: string;
+  headlineLine1: string;
+  headlineLine2: string;
+  subtitle: string;
+  packshot: string;
+  heroBg?: string;
+  category: string;
+  badgeTop: string;
+  badgeBottom: string;
+  badgeColor?: string;
+  bgGradient?: string;
+  curtainColor?: string;
+  legalText?: string;
+  isActive?: boolean;
+  order?: number;
+}
+
 export interface StoreSettingsResponse {
   shipping?: Partial<ShippingSettings>;
+  heroSlides?: HeroSlideSetting[];
   [key: string]: unknown;
 }
 
 const SETTINGS_CACHE_KEY = 'cyden_store_shipping_settings_v1';
+const HERO_SLIDES_CACHE_KEY = 'cyden_store_hero_slides_v1';
 
 export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
   freeShippingThreshold: 1500,
@@ -82,5 +103,44 @@ export async function fetchLiveShippingSettings(): Promise<ShippingSettings> {
   }
 
   return getCachedShippingSettings();
+}
+
+export function getCachedHeroSlides(): HeroSlideSetting[] | null {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const cached = localStorage.getItem(HERO_SLIDES_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    }
+  } catch {
+    // Ignore JSON errors
+  }
+  return null;
+}
+
+export async function fetchLiveHeroSlides(): Promise<HeroSlideSetting[] | null> {
+  try {
+    const res = await apiRequest<StoreSettingsResponse>('/settings');
+    if (Array.isArray(res?.heroSlides) && res.heroSlides.length > 0) {
+      const active = res.heroSlides.filter((s) => s.isActive !== false);
+      if (active.length > 0) {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(HERO_SLIDES_CACHE_KEY, JSON.stringify(active));
+          }
+        } catch {
+          // ignore quota
+        }
+        return active;
+      }
+    }
+  } catch (err) {
+    console.warn('Using fallback hero slides:', err);
+  }
+  return getCachedHeroSlides();
 }
 
