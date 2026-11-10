@@ -49,10 +49,18 @@ export async function apiRequest<T>(
     requestHeaders['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  // Append cache buster to GET requests to bypass any aggressive HTTP/browser caching
+  let url = `${API_BASE_URL}${path}`;
+  if (method === 'GET') {
+    const separator = url.includes('?') ? '&' : '?';
+    url = `${url}${separator}_t=${Date.now()}`;
+  }
+
+  const response = await fetch(url, {
     method,
     headers: requestHeaders,
     body: body !== undefined ? JSON.stringify(body) : undefined,
+    cache: 'no-store',
   });
 
   let data: unknown = null;
